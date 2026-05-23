@@ -1,10 +1,11 @@
 ﻿using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Common.Pagination;
 using MediatR;
 
 namespace dishmade.application.Features.Categories.Queries.GetCategories;
 
 public sealed class GetCategoriesQueryHandler
-    : IRequestHandler<GetCategoriesQuery, IReadOnlyList<CategoryResponse>>
+    : IRequestHandler<GetCategoriesQuery, PagedResponse<CategoryResponse>>
 {
     private readonly ICategoryRepository _categoryRepository;
 
@@ -13,13 +14,21 @@ public sealed class GetCategoriesQueryHandler
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<IReadOnlyList<CategoryResponse>> Handle(
+    public async Task<PagedResponse<CategoryResponse>> Handle(
         GetCategoriesQuery request,
         CancellationToken cancellationToken)
     {
-        var categories = await _categoryRepository.GetAllAsync(cancellationToken);
+        var pageNumber = PaginationHelper.NormalizePageNumber(request.PageNumber);
+        var pageSize = PaginationHelper.NormalizePageSize(request.PageSize);
 
-        return categories
+        var result = await _categoryRepository.GetPagedAsync(
+            request.Search,
+            request.IsActive,
+            pageNumber,
+            pageSize,
+            cancellationToken);
+
+        var categories = result.Items
             .Select(category => new CategoryResponse(
                 category.Id,
                 category.Name,
@@ -27,5 +36,11 @@ public sealed class GetCategoriesQueryHandler
                 category.IsActive,
                 category.CreatedAt))
             .ToList();
+
+        return new PagedResponse<CategoryResponse>(
+            categories,
+            pageNumber,
+            pageSize,
+            result.TotalCount);
     }
 }

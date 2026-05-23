@@ -1,4 +1,5 @@
 ﻿using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Common.Pagination;
 using dishmade.domain.Entities;
 using dishmade.domain.Enums;
 using dishmade.infra.Data.Context;
@@ -34,6 +35,7 @@ public sealed class OrderRepository : IOrderRepository
             .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
     }
 
+
     public async Task<IReadOnlyList<Order>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Orders
@@ -43,6 +45,97 @@ public sealed class OrderRepository : IOrderRepository
                 .ThenInclude(item => item.Dish)
             .OrderByDescending(order => order.CreatedAt)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<PagedResult<Order>> GetPagedAsync(
+    OrderStatus? status,
+    Guid? tableId,
+    DateTime? startDate,
+    DateTime? endDate,
+    int pageNumber,
+    int pageSize,
+    CancellationToken cancellationToken = default)
+    {
+        IQueryable<Order> query = _context.Orders
+            .AsNoTracking()
+            .Include(order => order.Table)
+            .Include(order => order.Items)
+                .ThenInclude(item => item.Dish);
+
+        if (status.HasValue)
+        {
+            query = query.Where(order => order.Status == status.Value);
+        }
+
+        if (tableId.HasValue)
+        {
+            query = query.Where(order => order.TableId == tableId.Value);
+        }
+
+        if (startDate.HasValue)
+        {
+            var start = startDate.Value.Date;
+
+            query = query.Where(order => order.CreatedAt >= start);
+        }
+
+        if (endDate.HasValue)
+        {
+            var endExclusive = endDate.Value.Date.AddDays(1);
+
+            query = query.Where(order => order.CreatedAt < endExclusive);
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderByDescending(order => order.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<Order>(items, totalCount);
+    }
+
+    public async Task<PagedResult<Order>> GetDeliveredOrdersPagedAsync(
+        DateTime? startDate,
+        DateTime? endDate,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Order> query = _context.Orders
+            .AsNoTracking()
+            .Include(order => order.Table)
+            .Include(order => order.Items)
+                .ThenInclude(item => item.Dish)
+            .Where(order => order.Status == OrderStatus.Delivered);
+
+        if (startDate.HasValue)
+        {
+            var start = startDate.Value.Date;
+
+            query = query.Where(order =>
+                (order.DeliveredAt ?? order.UpdatedAt ?? order.CreatedAt) >= start);
+        }
+
+        if (endDate.HasValue)
+        {
+            var endExclusive = endDate.Value.Date.AddDays(1);
+
+            query = query.Where(order =>
+                (order.DeliveredAt ?? order.UpdatedAt ?? order.CreatedAt) < endExclusive);
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderByDescending(order => order.DeliveredAt ?? order.UpdatedAt ?? order.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<Order>(items, totalCount);
     }
 
     public async Task<IReadOnlyList<Order>> GetDeliveredOrdersAsync(

@@ -1,4 +1,5 @@
 ﻿using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Common.Pagination;
 using dishmade.domain.Entities;
 using dishmade.infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,49 @@ public sealed class DishRepository : IDishRepository
             .Include(dish => dish.Category)
             .OrderBy(dish => dish.Name)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<PagedResult<Dish>> GetPagedAsync(
+    string? search,
+    Guid? categoryId,
+    bool? isAvailable,
+    int pageNumber,
+    int pageSize,
+    CancellationToken cancellationToken = default)
+    {
+        var query = _context.Dishes
+            .AsNoTracking()
+            .Include(dish => dish.Category)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search.Trim()}%";
+
+            query = query.Where(dish =>
+                EF.Functions.Like(dish.Name, term) ||
+                dish.Description != null && EF.Functions.Like(dish.Description, term));
+        }
+
+        if (categoryId.HasValue)
+        {
+            query = query.Where(dish => dish.CategoryId == categoryId.Value);
+        }
+
+        if (isAvailable.HasValue)
+        {
+            query = query.Where(dish => dish.IsAvailable == isAvailable.Value);
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderBy(dish => dish.Name)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<Dish>(items, totalCount);
     }
 
     public async Task<bool> ExistsByNameAsync(

@@ -39,9 +39,17 @@ public sealed class DishesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+    [FromQuery] string? search,
+    [FromQuery] Guid? categoryId,
+    [FromQuery] bool? isAvailable,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10,
+    CancellationToken cancellationToken = default)
     {
-        var dishes = await _sender.Send(new GetDishesQuery(), cancellationToken);
+        var dishes = await _sender.Send(
+            new GetDishesQuery(search, categoryId, isAvailable, pageNumber, pageSize),
+            cancellationToken);
 
         return Ok(dishes);
     }

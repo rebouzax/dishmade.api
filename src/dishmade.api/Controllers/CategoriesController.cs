@@ -30,9 +30,16 @@ public sealed class CategoriesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+    [FromQuery] string? search,
+    [FromQuery] bool? isActive,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10,
+    CancellationToken cancellationToken = default)
     {
-        var categories = await _sender.Send(new GetCategoriesQuery(), cancellationToken);
+        var categories = await _sender.Send(
+            new GetCategoriesQuery(search, isActive, pageNumber, pageSize),
+            cancellationToken);
 
         return Ok(categories);
     }

@@ -37,9 +37,16 @@ public sealed class TablesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+    [FromQuery] int? number,
+    [FromQuery] bool? isOccupied,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10,
+    CancellationToken cancellationToken = default)
     {
-        var tables = await _sender.Send(new GetTablesQuery(), cancellationToken);
+        var tables = await _sender.Send(
+            new GetTablesQuery(number, isOccupied, pageNumber, pageSize),
+            cancellationToken);
 
         return Ok(tables);
     }

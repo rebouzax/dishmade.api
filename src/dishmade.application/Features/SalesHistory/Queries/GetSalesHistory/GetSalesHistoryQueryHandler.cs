@@ -1,10 +1,11 @@
 ﻿using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Common.Pagination;
 using MediatR;
 
 namespace dishmade.application.Features.SalesHistory.Queries.GetSalesHistory;
 
 public sealed class GetSalesHistoryQueryHandler
-    : IRequestHandler<GetSalesHistoryQuery, IReadOnlyList<SalesHistoryOrderResponse>>
+    : IRequestHandler<GetSalesHistoryQuery, PagedResponse<SalesHistoryOrderResponse>>
 {
     private readonly IOrderRepository _orderRepository;
 
@@ -13,16 +14,21 @@ public sealed class GetSalesHistoryQueryHandler
         _orderRepository = orderRepository;
     }
 
-    public async Task<IReadOnlyList<SalesHistoryOrderResponse>> Handle(
+    public async Task<PagedResponse<SalesHistoryOrderResponse>> Handle(
         GetSalesHistoryQuery request,
         CancellationToken cancellationToken)
     {
-        var orders = await _orderRepository.GetDeliveredOrdersAsync(
+        var pageNumber = PaginationHelper.NormalizePageNumber(request.PageNumber);
+        var pageSize = PaginationHelper.NormalizePageSize(request.PageSize);
+
+        var result = await _orderRepository.GetDeliveredOrdersPagedAsync(
             request.StartDate,
             request.EndDate,
+            pageNumber,
+            pageSize,
             cancellationToken);
 
-        return orders
+        var sales = result.Items
             .Select(order => new SalesHistoryOrderResponse(
                 order.Id,
                 order.TableId,
@@ -38,5 +44,11 @@ public sealed class GetSalesHistoryQueryHandler
                         item.GetTotal()))
                     .ToList()))
             .ToList();
+
+        return new PagedResponse<SalesHistoryOrderResponse>(
+            sales,
+            pageNumber,
+            pageSize,
+            result.TotalCount);
     }
 }

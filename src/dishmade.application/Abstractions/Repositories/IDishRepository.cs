@@ -1,4 +1,5 @@
-﻿using dishmade.domain.Entities;
+﻿using dishmade.application.Common.Pagination;
+using dishmade.domain.Entities;
 
 namespace dishmade.application.Abstractions.Repositories;
 
@@ -9,6 +10,14 @@ public interface IDishRepository
     Task<Dish?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Dish>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    Task<PagedResult<Dish>> GetPagedAsync(
+        string? search,
+        Guid? categoryId,
+        bool? isAvailable,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByNameAsync(
         string name,

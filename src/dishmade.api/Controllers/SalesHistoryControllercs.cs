@@ -19,10 +19,12 @@ public sealed class SalesHistoryController : ControllerBase
     public async Task<IActionResult> GetSalesHistory(
         [FromQuery] DateTime? startDate,
         [FromQuery] DateTime? endDate,
-        CancellationToken cancellationToken)
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        CancellationToken cancellationToken = default)
     {
         var result = await _sender.Send(
-            new GetSalesHistoryQuery(startDate, endDate),
+            new GetSalesHistoryQuery(startDate, endDate, pageNumber, pageSize),
             cancellationToken);
 
         return Ok(result);

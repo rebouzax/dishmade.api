@@ -53,9 +53,18 @@ public sealed class OrdersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+    [FromQuery] OrderStatus? status,
+    [FromQuery] Guid? tableId,
+    [FromQuery] DateTime? startDate,
+    [FromQuery] DateTime? endDate,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10,
+    CancellationToken cancellationToken = default)
     {
-        var orders = await _sender.Send(new GetOrdersQuery(), cancellationToken);
+        var orders = await _sender.Send(
+            new GetOrdersQuery(status, tableId, startDate, endDate, pageNumber, pageSize),
+            cancellationToken);
 
         return Ok(orders);
     }

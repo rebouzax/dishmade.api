@@ -1,10 +1,11 @@
 ﻿using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Common.Pagination;
 using MediatR;
 
 namespace dishmade.application.Features.Dishes.Queries.GetDishes;
 
 public sealed class GetDishesQueryHandler
-    : IRequestHandler<GetDishesQuery, IReadOnlyList<DishResponse>>
+    : IRequestHandler<GetDishesQuery, PagedResponse<DishResponse>>
 {
     private readonly IDishRepository _dishRepository;
 
@@ -13,13 +14,22 @@ public sealed class GetDishesQueryHandler
         _dishRepository = dishRepository;
     }
 
-    public async Task<IReadOnlyList<DishResponse>> Handle(
+    public async Task<PagedResponse<DishResponse>> Handle(
         GetDishesQuery request,
         CancellationToken cancellationToken)
     {
-        var dishes = await _dishRepository.GetAllAsync(cancellationToken);
+        var pageNumber = PaginationHelper.NormalizePageNumber(request.PageNumber);
+        var pageSize = PaginationHelper.NormalizePageSize(request.PageSize);
 
-        return dishes
+        var result = await _dishRepository.GetPagedAsync(
+            request.Search,
+            request.CategoryId,
+            request.IsAvailable,
+            pageNumber,
+            pageSize,
+            cancellationToken);
+
+        var dishes = result.Items
             .Select(dish => new DishResponse(
                 dish.Id,
                 dish.Name,
@@ -31,5 +41,11 @@ public sealed class GetDishesQueryHandler
                 dish.CreatedAt,
                 dish.UpdatedAt))
             .ToList();
+
+        return new PagedResponse<DishResponse>(
+            dishes,
+            pageNumber,
+            pageSize,
+            result.TotalCount);
     }
 }

@@ -1,11 +1,12 @@
 ﻿using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Common.Pagination;
 using dishmade.application.Features.Tables.Queries;
 using MediatR;
 
 namespace dishmade.application.Features.Tables.Queries.GetTables;
 
 public sealed class GetTablesQueryHandler
-    : IRequestHandler<GetTablesQuery, IReadOnlyList<TableResponse>>
+    : IRequestHandler<GetTablesQuery, PagedResponse<TableResponse>>
 {
     private readonly IRestaurantTableRepository _tableRepository;
 
@@ -14,13 +15,21 @@ public sealed class GetTablesQueryHandler
         _tableRepository = tableRepository;
     }
 
-    public async Task<IReadOnlyList<TableResponse>> Handle(
+    public async Task<PagedResponse<TableResponse>> Handle(
         GetTablesQuery request,
         CancellationToken cancellationToken)
     {
-        var tables = await _tableRepository.GetAllAsync(cancellationToken);
+        var pageNumber = PaginationHelper.NormalizePageNumber(request.PageNumber);
+        var pageSize = PaginationHelper.NormalizePageSize(request.PageSize);
 
-        return tables
+        var result = await _tableRepository.GetPagedAsync(
+            request.Number,
+            request.IsOccupied,
+            pageNumber,
+            pageSize,
+            cancellationToken);
+
+        var tables = result.Items
             .Select(table => new TableResponse(
                 table.Id,
                 table.Number,
@@ -28,5 +37,11 @@ public sealed class GetTablesQueryHandler
                 table.CreatedAt,
                 table.UpdatedAt))
             .ToList();
+
+        return new PagedResponse<TableResponse>(
+            tables,
+            pageNumber,
+            pageSize,
+            result.TotalCount);
     }
 }
