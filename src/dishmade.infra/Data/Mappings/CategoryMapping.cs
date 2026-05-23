@@ -12,6 +12,9 @@ public sealed class CategoryMapping : IEntityTypeConfiguration<Category>
 
         builder.HasKey(category => category.Id);
 
+        builder.Property(category => category.Id)
+            .ValueGeneratedNever();
+
         builder.Property(category => category.Name)
             .IsRequired()
             .HasMaxLength(100);

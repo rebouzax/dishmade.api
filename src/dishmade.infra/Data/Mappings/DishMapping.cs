@@ -12,6 +12,9 @@ public sealed class DishMapping : IEntityTypeConfiguration<Dish>
 
         builder.HasKey(dish => dish.Id);
 
+        builder.Property(dish => dish.Id)
+            .ValueGeneratedNever();
+
         builder.Property(dish => dish.Name)
             .IsRequired()
             .HasMaxLength(150);

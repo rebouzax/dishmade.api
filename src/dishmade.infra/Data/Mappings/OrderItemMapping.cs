@@ -12,6 +12,9 @@ public sealed class OrderItemMapping : IEntityTypeConfiguration<OrderItem>
 
         builder.HasKey(item => item.Id);
 
+        builder.Property(item => item.Id)
+            .ValueGeneratedNever();
+
         builder.Property(item => item.OrderId)
             .IsRequired();
 

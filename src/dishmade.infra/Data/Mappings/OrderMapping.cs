@@ -1,5 +1,4 @@
 ﻿using dishmade.domain.Entities;
-using dishmade.domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,6 +11,9 @@ public sealed class OrderMapping : IEntityTypeConfiguration<Order>
         builder.ToTable("Orders");
 
         builder.HasKey(order => order.Id);
+
+        builder.Property(order => order.Id)
+            .ValueGeneratedNever();
 
         builder.Property(order => order.TableId)
             .IsRequired();

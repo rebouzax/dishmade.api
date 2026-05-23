@@ -15,7 +15,6 @@
     <Folder Include="Common\Exceptions\" />
     <Folder Include="Common\Results\" />
     <Folder Include="Features\Dashboard\" />
-    <Folder Include="Features\Orders\" />
   </ItemGroup>
 
   <PropertyGroup>

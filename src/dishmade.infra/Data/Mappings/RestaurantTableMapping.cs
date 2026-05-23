@@ -12,6 +12,9 @@ public sealed class RestaurantTableMapping : IEntityTypeConfiguration<Restaurant
 
         builder.HasKey(table => table.Id);
 
+        builder.Property(table => table.Id)
+            .ValueGeneratedNever();
+
         builder.Property(table => table.Number)
             .IsRequired();
 

@@ -21,16 +21,22 @@ public sealed class Order : BaseEntity
         TableId = tableId;
     }
 
-    public void AddItem(Guid dishId, int quantity, decimal unitPrice)
+    public OrderItem AddItem(Guid dishId, int quantity, decimal unitPrice)
     {
+        EnsureCanBeChanged();
+
         if (quantity <= 0)
             throw new ArgumentException("A quantidade deve ser maior que zero.", nameof(quantity));
 
         if (unitPrice <= 0)
             throw new ArgumentException("O preço unitário deve ser maior que zero.", nameof(unitPrice));
 
-        Items.Add(new OrderItem(Id, dishId, quantity, unitPrice));
+        var item = new OrderItem(Id, dishId, quantity, unitPrice);
+
+        Items.Add(item);
         SetUpdatedAt();
+
+        return item;
     }
 
     public void StartPreparation()
@@ -65,6 +71,9 @@ public sealed class Order : BaseEntity
         if (Status == OrderStatus.Delivered)
             throw new InvalidOperationException("Pedidos entregues não podem ser cancelados.");
 
+        if (Status == OrderStatus.Canceled)
+            throw new InvalidOperationException("O pedido já está cancelado.");
+
         Status = OrderStatus.Canceled;
         SetUpdatedAt();
     }
@@ -72,5 +81,14 @@ public sealed class Order : BaseEntity
     public decimal GetTotal()
     {
         return Items.Sum(item => item.GetTotal());
+    }
+
+    private void EnsureCanBeChanged()
+    {
+        if (Status == OrderStatus.Delivered)
+            throw new InvalidOperationException("Pedidos entregues não podem ser alterados.");
+
+        if (Status == OrderStatus.Canceled)
+            throw new InvalidOperationException("Pedidos cancelados não podem ser alterados.");
     }
 }
