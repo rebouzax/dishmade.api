@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/dishmade.api/dishmade.api.csproj" />
+    <Project Path="src/dishmade.application/dishmade.application.csproj" />
+    <Project Path="src/dishmade.domain/dishmade.domain.csproj" />
+    <Project Path="src/dishmade.infra/dishmade.infra.csproj" />
+  </Folder>
+</Solution>

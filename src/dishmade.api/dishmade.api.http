@@ -1,0 +1,6 @@
+@dishmade.api_HostAddress = http://localhost:5280
+
+GET {{dishmade.api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
