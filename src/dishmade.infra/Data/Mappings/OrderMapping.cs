@@ -22,10 +22,16 @@ public sealed class OrderMapping : IEntityTypeConfiguration<Order>
             .IsRequired()
             .HasConversion<int>();
 
+        builder.Property(order => order.DeliveredAt);
+
         builder.Property(order => order.CreatedAt)
             .IsRequired();
 
         builder.Property(order => order.UpdatedAt);
+
+        builder.HasIndex(order => order.Status);
+
+        builder.HasIndex(order => order.DeliveredAt);
 
         builder.HasOne(order => order.Table)
             .WithMany()

@@ -10,6 +10,8 @@ public sealed class Order : BaseEntity
 
     public OrderStatus Status { get; private set; } = OrderStatus.Created;
 
+    public DateTime? DeliveredAt { get; private set; }
+
     public ICollection<OrderItem> Items { get; private set; } = [];
 
     private Order()
@@ -63,6 +65,7 @@ public sealed class Order : BaseEntity
             throw new InvalidOperationException("Somente pedidos prontos podem ser entregues.");
 
         Status = OrderStatus.Delivered;
+        DeliveredAt = DateTime.UtcNow;
         SetUpdatedAt();
     }
 

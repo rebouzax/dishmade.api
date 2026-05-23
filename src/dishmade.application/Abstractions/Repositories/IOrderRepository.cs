@@ -11,4 +11,9 @@ public interface IOrderRepository
     Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Order>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Order>> GetDeliveredOrdersAsync(
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        CancellationToken cancellationToken = default);
 }

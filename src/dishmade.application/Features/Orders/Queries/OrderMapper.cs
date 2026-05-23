@@ -24,6 +24,7 @@ public static class OrderMapper
             order.GetTotal(),
             items,
             order.CreatedAt,
-            order.UpdatedAt);
+            order.UpdatedAt,
+            order.DeliveredAt);
     }
 }

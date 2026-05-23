@@ -10,5 +10,6 @@ public sealed record OrderResponse(
     decimal Total,
     IReadOnlyList<OrderItemResponse> Items,
     DateTime CreatedAt,
-    DateTime? UpdatedAt
+    DateTime? UpdatedAt,
+    DateTime? DeliveredAt
 );
