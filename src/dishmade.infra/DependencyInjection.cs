@@ -1,5 +1,7 @@
-﻿using dishmade.application.Abstractions.Data;
+﻿using dishmade.application.Abstractions.Auth;
+using dishmade.application.Abstractions.Data;
 using dishmade.application.Abstractions.Repositories;
+using dishmade.infra.Auth;
 using dishmade.infra.Data.Context;
 using dishmade.infra.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +20,12 @@ public static class DependencyInjection
 
         services.AddDbContext<DishmadeDbContext>(options =>
             options.UseSqlServer(connectionString));
+
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IPasswordHashService, PasswordHashService>();
+
+        services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IDishRepository, DishRepository>();

@@ -18,7 +18,10 @@ public sealed class RestaurantTableMapping : IEntityTypeConfiguration<Restaurant
         builder.Property(table => table.Number)
             .IsRequired();
 
-        builder.HasIndex(table => table.Number)
+        builder.Property(table => table.RestaurantId)
+            .IsRequired();
+
+        builder.HasIndex(table => new { table.RestaurantId, table.Number })
             .IsUnique()
             .HasFilter("[IsDeleted] = 0");
 

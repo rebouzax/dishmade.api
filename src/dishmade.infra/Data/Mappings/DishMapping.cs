@@ -35,6 +35,11 @@ public sealed class DishMapping : IEntityTypeConfiguration<Dish>
         builder.Property(dish => dish.CategoryId)
             .IsRequired();
 
+        builder.Property(dish => dish.RestaurantId)
+            .IsRequired();
+
+        builder.HasIndex(dish => dish.RestaurantId);
+
         builder.Property(dish => dish.CreatedAt)
             .IsRequired();
 

@@ -2,11 +2,14 @@
 using dishmade.application.Features.Categories.Queries.GetCategories;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using dishmade.domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dishmade.api.Controllers;
 
 [ApiController]
 [Route("api/categories")]
+[Authorize(Roles = Roles.Client)]
 public sealed class CategoriesController : ControllerBase
 {
     private readonly ISender _sender;

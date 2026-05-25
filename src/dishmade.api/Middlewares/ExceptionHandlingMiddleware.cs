@@ -57,6 +57,19 @@ public sealed class ExceptionHandlingMiddleware
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));
         }
+        catch (UnauthorizedAccessException exception)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            context.Response.ContentType = "application/json";
+
+            var response = new
+            {
+                statusCode = context.Response.StatusCode,
+                message = exception.Message
+            };
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        }
         catch (InvalidOperationException exception)
         {
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;

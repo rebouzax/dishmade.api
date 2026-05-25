@@ -23,5 +23,9 @@ public sealed class CreateDishCommandValidator : AbstractValidator<CreateDishCom
         RuleFor(command => command.CategoryId)
             .NotEmpty()
             .WithMessage("A categoria do prato é obrigatória.");
+
+        RuleFor(command => command.RestaurantId)
+            .NotEmpty()
+            .WithMessage("O restaurante é obrigatório.");
     }
 }

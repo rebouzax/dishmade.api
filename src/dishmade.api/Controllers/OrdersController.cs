@@ -7,11 +7,14 @@ using dishmade.application.Features.Orders.Queries.GetOrders;
 using dishmade.domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using dishmade.domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dishmade.api.Controllers;
 
 [ApiController]
 [Route("api/orders")]
+[Authorize(Roles = Roles.Client)]
 public sealed class OrdersController : ControllerBase
 {
     private readonly ISender _sender;

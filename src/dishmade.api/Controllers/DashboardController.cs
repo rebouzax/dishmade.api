@@ -1,11 +1,14 @@
 ﻿using dishmade.application.Features.Dashboard.Queries.GetRestaurantDashboard;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using dishmade.domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dishmade.api.Controllers;
 
 [ApiController]
 [Route("api/dashboard")]
+[Authorize(Roles = Roles.Client)]
 public sealed class DashboardController : ControllerBase
 {
     private readonly ISender _sender;

@@ -2,7 +2,7 @@
 
 namespace dishmade.domain.Entities;
 
-public sealed class Category : BaseEntity
+public sealed class Category : RestaurantScopedEntity
 {
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
@@ -14,16 +14,21 @@ public sealed class Category : BaseEntity
     {
     }
 
-    public Category(string name, string? description)
+    public Category(
+        string name,
+        string? description,
+        Guid restaurantId)
     {
-        Name = name;
-        Description = description;
+        SetRestaurantId(restaurantId);
+
+        Name = name.Trim();
+        Description = description?.Trim();
     }
 
     public void Update(string name, string? description)
     {
-        Name = name;
-        Description = description;
+        Name = name.Trim();
+        Description = description?.Trim();
         SetUpdatedAt();
     }
 

@@ -1,6 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <Compile Remove="Abstractions\Services\**" />
+    <Compile Remove="Common\Exceptions\**" />
+    <Compile Remove="Common\Results\**" />
+    <EmbeddedResource Remove="Abstractions\Services\**" />
+    <EmbeddedResource Remove="Common\Exceptions\**" />
+    <EmbeddedResource Remove="Common\Results\**" />
+    <None Remove="Abstractions\Services\**" />
+    <None Remove="Common\Exceptions\**" />
+    <None Remove="Common\Results\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\dishmade.domain\dishmade.domain.csproj" />
   </ItemGroup>
 
@@ -8,12 +20,6 @@
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Abstractions\Services\" />
-    <Folder Include="Common\Exceptions\" />
-    <Folder Include="Common\Results\" />
   </ItemGroup>
 
   <PropertyGroup>

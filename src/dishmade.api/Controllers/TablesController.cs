@@ -7,11 +7,14 @@ using dishmade.application.Features.Tables.Queries.GetTableById;
 using dishmade.application.Features.Tables.Queries.GetTables;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using dishmade.domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dishmade.api.Controllers;
 
 [ApiController]
 [Route("api/tables")]
+[Authorize(Roles = Roles.Client)]
 public sealed class TablesController : ControllerBase
 {
     private readonly ISender _sender;

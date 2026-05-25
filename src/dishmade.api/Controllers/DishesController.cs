@@ -5,11 +5,14 @@ using dishmade.application.Features.Dishes.Queries.GetDishById;
 using dishmade.application.Features.Dishes.Queries.GetDishes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using dishmade.domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dishmade.api.Controllers;
 
 [ApiController]
 [Route("api/dishes")]
+[Authorize(Roles = Roles.Client)]
 public sealed class DishesController : ControllerBase
 {
     private readonly ISender _sender;
@@ -28,7 +31,8 @@ public sealed class DishesController : ControllerBase
             request.Name,
             request.Description,
             request.Price,
-            request.CategoryId);
+            request.CategoryId,
+            request.RestaurantId);
 
         var dishId = await _sender.Send(command, cancellationToken);
 
@@ -75,7 +79,8 @@ public sealed class DishesController : ControllerBase
             request.Name,
             request.Description,
             request.Price,
-            request.CategoryId);
+            request.CategoryId,
+            request.RestaurantId);
 
         await _sender.Send(command, cancellationToken);
 
@@ -97,12 +102,14 @@ public sealed record CreateDishRequest(
     string Name,
     string? Description,
     decimal Price,
-    Guid CategoryId
+    Guid CategoryId,
+    Guid RestaurantId
 );
 
 public sealed record UpdateDishRequest(
     string Name,
     string? Description,
     decimal Price,
-    Guid CategoryId
+    Guid CategoryId,
+    Guid RestaurantId
 );

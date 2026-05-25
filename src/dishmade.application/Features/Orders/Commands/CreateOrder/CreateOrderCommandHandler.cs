@@ -1,4 +1,5 @@
-﻿using dishmade.application.Abstractions.Data;
+﻿using dishmade.application.Abstractions.Auth;
+using dishmade.application.Abstractions.Data;
 using dishmade.application.Abstractions.Repositories;
 using dishmade.domain.Entities;
 using MediatR;
@@ -10,15 +11,18 @@ public sealed class CreateOrderCommandHandler : IRequestHandler<CreateOrderComma
     private readonly IOrderRepository _orderRepository;
     private readonly IRestaurantTableRepository _tableRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
     public CreateOrderCommandHandler(
         IOrderRepository orderRepository,
         IRestaurantTableRepository tableRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _orderRepository = orderRepository;
         _tableRepository = tableRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Guid> Handle(
@@ -33,7 +37,11 @@ public sealed class CreateOrderCommandHandler : IRequestHandler<CreateOrderComma
         if (table.IsOccupied)
             throw new InvalidOperationException("Não é possível criar pedido para uma mesa ocupada.");
 
-        var order = new Order(table.Id);
+        var restaurantId = _currentUserService.GetRequiredRestaurantId();
+
+        var order = new Order(
+            table.Id,
+            restaurantId);
 
         table.Occupy();
 

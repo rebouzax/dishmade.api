@@ -25,6 +25,11 @@ public sealed class CategoryMapping : IEntityTypeConfiguration<Category>
         builder.Property(category => category.IsActive)
             .IsRequired();
 
+        builder.Property(category => category.RestaurantId)
+            .IsRequired();
+
+        builder.HasIndex(category => category.RestaurantId);
+
         builder.Property(category => category.CreatedAt)
             .IsRequired();
 

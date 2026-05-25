@@ -1,4 +1,5 @@
-﻿using dishmade.application.Abstractions.Data;
+﻿using dishmade.application.Abstractions.Auth;
+using dishmade.application.Abstractions.Data;
 using dishmade.application.Abstractions.Repositories;
 using dishmade.domain.Entities;
 using MediatR;
@@ -10,11 +11,13 @@ public sealed class CreateDishCommandHandler : IRequestHandler<CreateDishCommand
     private readonly IDishRepository _dishRepository;
     private readonly ICategoryRepository _categoryRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
     public CreateDishCommandHandler(
         IDishRepository dishRepository,
         ICategoryRepository categoryRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _dishRepository = dishRepository;
         _categoryRepository = categoryRepository;
@@ -39,11 +42,14 @@ public sealed class CreateDishCommandHandler : IRequestHandler<CreateDishCommand
         if (dishAlreadyExists)
             throw new InvalidOperationException("Já existe um prato com esse nome.");
 
+        var restaurantId = _currentUserService.GetRequiredRestaurantId();
+
         var dish = new Dish(
             request.Name,
             request.Description,
             request.Price,
-            request.CategoryId);
+            request.CategoryId,
+            restaurantId);
 
         await _dishRepository.AddAsync(dish, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

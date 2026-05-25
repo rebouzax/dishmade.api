@@ -3,7 +3,7 @@ using dishmade.domain.Enums;
 
 namespace dishmade.domain.Entities;
 
-public sealed class Order : BaseEntity
+public sealed class Order : RestaurantScopedEntity
 {
     public Guid TableId { get; private set; }
     public RestaurantTable Table { get; private set; } = null!;
@@ -18,8 +18,9 @@ public sealed class Order : BaseEntity
     {
     }
 
-    public Order(Guid tableId)
+    public Order(Guid tableId, Guid restaurantId)
     {
+        SetRestaurantId(restaurantId);
         TableId = tableId;
     }
 

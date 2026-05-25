@@ -2,7 +2,7 @@
 
 namespace dishmade.domain.Entities;
 
-public sealed class RestaurantTable : BaseEntity
+public sealed class RestaurantTable : RestaurantScopedEntity
 {
     public int Number { get; private set; }
     public bool IsOccupied { get; private set; }
@@ -12,8 +12,9 @@ public sealed class RestaurantTable : BaseEntity
     {
     }
 
-    public RestaurantTable(int number)
+    public RestaurantTable(int number, Guid restaurantId)
     {
+        SetRestaurantId(restaurantId);
         ValidateNumber(number);
 
         Number = number;

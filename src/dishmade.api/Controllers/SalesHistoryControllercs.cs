@@ -1,11 +1,14 @@
 ﻿using dishmade.application.Features.SalesHistory.Queries.GetSalesHistory;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using dishmade.domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dishmade.api.Controllers;
 
 [ApiController]
 [Route("api/sales-history")]
+[Authorize(Roles = Roles.Client)]
 public sealed class SalesHistoryController : ControllerBase
 {
     private readonly ISender _sender;

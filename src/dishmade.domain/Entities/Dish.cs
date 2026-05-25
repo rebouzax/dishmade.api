@@ -2,7 +2,7 @@
 
 namespace dishmade.domain.Entities;
 
-public sealed class Dish : BaseEntity
+public sealed class Dish : RestaurantScopedEntity
 {
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
@@ -21,12 +21,14 @@ public sealed class Dish : BaseEntity
         string name,
         string? description,
         decimal price,
-        Guid categoryId)
+        Guid categoryId,
+        Guid restaurantId)
     {
+        SetRestaurantId(restaurantId);
         ValidatePrice(price);
 
-        Name = name;
-        Description = description;
+        Name = name.Trim();
+        Description = description?.Trim();
         Price = price;
         CategoryId = categoryId;
     }
@@ -39,8 +41,8 @@ public sealed class Dish : BaseEntity
     {
         ValidatePrice(price);
 
-        Name = name;
-        Description = description;
+        Name = name.Trim();
+        Description = description?.Trim();
         Price = price;
         CategoryId = categoryId;
         SetUpdatedAt();
