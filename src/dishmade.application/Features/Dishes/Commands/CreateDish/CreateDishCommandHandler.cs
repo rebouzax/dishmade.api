@@ -22,12 +22,15 @@ public sealed class CreateDishCommandHandler : IRequestHandler<CreateDishCommand
         _dishRepository = dishRepository;
         _categoryRepository = categoryRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Guid> Handle(
         CreateDishCommand request,
         CancellationToken cancellationToken)
     {
+        var restaurantId = _currentUserService.GetRequiredRestaurantId();
+
         var categoryExists = await _categoryRepository.ExistsByIdAsync(
             request.CategoryId,
             cancellationToken);
@@ -41,8 +44,6 @@ public sealed class CreateDishCommandHandler : IRequestHandler<CreateDishCommand
 
         if (dishAlreadyExists)
             throw new InvalidOperationException("Já existe um prato com esse nome.");
-
-        var restaurantId = _currentUserService.GetRequiredRestaurantId();
 
         var dish = new Dish(
             request.Name,

@@ -6,6 +6,5 @@ public sealed record CreateDishCommand(
     string Name,
     string? Description,
     decimal Price,
-    Guid CategoryId,
-    Guid RestaurantId
+    Guid CategoryId
 ) : IRequest<Guid>;

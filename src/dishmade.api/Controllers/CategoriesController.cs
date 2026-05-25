@@ -21,9 +21,13 @@ public sealed class CategoriesController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> Create(
-        [FromBody] CreateCategoryCommand command,
-        CancellationToken cancellationToken)
+    [FromBody] CreateCategoryRequest request,
+    CancellationToken cancellationToken)
     {
+        var command = new CreateCategoryCommand(
+            request.Name,
+            request.Description);
+
         var categoryId = await _sender.Send(command, cancellationToken);
 
         return CreatedAtAction(
@@ -46,4 +50,10 @@ public sealed class CategoriesController : ControllerBase
 
         return Ok(categories);
     }
+
+
+    public sealed record CreateCategoryRequest(
+        string Name,
+        string? Description
+    );
 }

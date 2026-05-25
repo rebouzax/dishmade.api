@@ -4,6 +4,5 @@ namespace dishmade.application.Features.Categories.Commands.CreateCategory;
 
 public sealed record CreateCategoryCommand(
     string Name,
-    string? Description,
-    Guid RestaurantId
+    string? Description
 ) : IRequest<Guid>;

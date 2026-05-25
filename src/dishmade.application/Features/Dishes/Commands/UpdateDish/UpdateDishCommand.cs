@@ -7,6 +7,5 @@ public sealed record UpdateDishCommand(
     string Name,
     string? Description,
     decimal Price,
-    Guid CategoryId,
-    Guid RestaunratId
+    Guid CategoryId
 ) : IRequest;

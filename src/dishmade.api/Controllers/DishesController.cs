@@ -24,15 +24,14 @@ public sealed class DishesController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> Create(
-        [FromBody] CreateDishRequest request,
-        CancellationToken cancellationToken)
+    [FromBody] CreateDishRequest request,
+    CancellationToken cancellationToken)
     {
         var command = new CreateDishCommand(
             request.Name,
             request.Description,
             request.Price,
-            request.CategoryId,
-            request.RestaurantId);
+            request.CategoryId);
 
         var dishId = await _sender.Send(command, cancellationToken);
 
@@ -79,8 +78,7 @@ public sealed class DishesController : ControllerBase
             request.Name,
             request.Description,
             request.Price,
-            request.CategoryId,
-            request.RestaurantId);
+            request.CategoryId);
 
         await _sender.Send(command, cancellationToken);
 
@@ -99,17 +97,14 @@ public sealed class DishesController : ControllerBase
 }
 
 public sealed record CreateDishRequest(
-    string Name,
-    string? Description,
-    decimal Price,
-    Guid CategoryId,
-    Guid RestaurantId
-);
-
+        string Name,
+        string? Description,
+        decimal Price,
+        Guid CategoryId
+    );
 public sealed record UpdateDishRequest(
     string Name,
     string? Description,
     decimal Price,
-    Guid CategoryId,
-    Guid RestaurantId
+    Guid CategoryId
 );

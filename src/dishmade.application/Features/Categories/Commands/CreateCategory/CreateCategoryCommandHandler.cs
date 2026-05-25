@@ -26,14 +26,14 @@ public sealed class CreateCategoryCommandHandler : IRequestHandler<CreateCategor
         CreateCategoryCommand request,
         CancellationToken cancellationToken)
     {
+        var restaurantId = _currentUserService.GetRequiredRestaurantId();
+
         var categoryAlreadyExists = await _categoryRepository.ExistsByNameAsync(
             request.Name,
             cancellationToken);
 
         if (categoryAlreadyExists)
             throw new InvalidOperationException("Já existe uma categoria com esse nome.");
-
-        var restaurantId = _currentUserService.GetRequiredRestaurantId();
 
         var category = new Category(
             request.Name,

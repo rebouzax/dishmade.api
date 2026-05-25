@@ -15,9 +15,5 @@ public sealed class CreateCategoryCommandValidator : AbstractValidator<CreateCat
         RuleFor(command => command.Description)
             .MaximumLength(500)
             .WithMessage("A descrição da categoria deve ter no máximo 500 caracteres.");
-
-        RuleFor(command => command.RestaurantId)
-            .NotEmpty()
-            .WithMessage("O restaurante é obrigatório.");
     }
 }
