@@ -21,6 +21,7 @@ public sealed class DishmadeDbContext : DbContext
 
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Dish> Dishes => Set<Dish>();
+    public DbSet<DishImage> DishImages => Set<DishImage>();
     public DbSet<RestaurantTable> RestaurantTables => Set<RestaurantTable>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
@@ -46,6 +47,12 @@ public sealed class DishmadeDbContext : DbContext
                 !dish.IsDeleted &&
                 _currentUserService.RestaurantId.HasValue &&
                 dish.RestaurantId == _currentUserService.RestaurantId.Value);
+        
+        modelBuilder.Entity<DishImage>()
+        .HasQueryFilter(image =>
+            _currentUserService.RestaurantId.HasValue &&
+            image.RestaurantId == _currentUserService.RestaurantId.Value);
+
 
         modelBuilder.Entity<RestaurantTable>()
             .HasQueryFilter(table =>

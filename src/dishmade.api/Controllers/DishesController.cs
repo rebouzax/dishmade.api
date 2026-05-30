@@ -1,12 +1,15 @@
 ﻿using dishmade.application.Features.Dishes.Commands.CreateDish;
 using dishmade.application.Features.Dishes.Commands.DeleteDish;
+using dishmade.application.Features.Dishes.Commands.DeleteDishImage;
 using dishmade.application.Features.Dishes.Commands.UpdateDish;
+using dishmade.application.Features.Dishes.Commands.UploadDishImage;
 using dishmade.application.Features.Dishes.Queries.GetDishById;
 using dishmade.application.Features.Dishes.Queries.GetDishes;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
+using dishmade.application.Features.Dishes.Queries.GetDishImage;
 using dishmade.domain.Constants;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace dishmade.api.Controllers;
 
@@ -91,6 +94,59 @@ public sealed class DishesController : ControllerBase
         CancellationToken cancellationToken)
     {
         await _sender.Send(new DeleteDishCommand(id), cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/image")]
+    [RequestSizeLimit(5 * 1024 * 1024)]
+    public async Task<IActionResult> UploadImage(
+    Guid id,
+    IFormFile file,
+    CancellationToken cancellationToken)
+    {
+        if (file is null || file.Length == 0)
+            return BadRequest(new { message = "A imagem é obrigatória." });
+
+        await using var memoryStream = new MemoryStream();
+
+        await file.CopyToAsync(memoryStream, cancellationToken);
+
+        var command = new UploadDishImageCommand(
+            id,
+            file.FileName,
+            file.ContentType,
+            file.Length,
+            memoryStream.ToArray());
+
+        await _sender.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpGet("{id:guid}/image")]
+    public async Task<IActionResult> GetImage(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var image = await _sender.Send(
+            new GetDishImageQuery(id),
+            cancellationToken);
+
+        return File(
+            image.Data,
+            image.ContentType,
+            image.FileName);
+    }
+
+    [HttpDelete("{id:guid}/image")]
+    public async Task<IActionResult> DeleteImage(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new DeleteDishImageCommand(id),
+            cancellationToken);
 
         return NoContent();
     }
