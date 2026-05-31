@@ -31,4 +31,22 @@ public sealed class DishImageRepository : IDishImageRepository
     {
         _context.DishImages.Remove(image);
     }
+
+    public async Task<DishImage?> GetPublicByDishIdAsync(
+    Guid dishId,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.DishImages
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Include(image => image.Dish)
+            .ThenInclude(dish => dish.Category)
+            .FirstOrDefaultAsync(
+                image =>
+                    image.DishId == dishId &&
+                    !image.Dish.IsDeleted &&
+                    image.Dish.IsAvailable &&
+                    image.Dish.Category.IsActive,
+                cancellationToken);
+    }
 }

@@ -66,7 +66,20 @@ public sealed class RestaurantTableRepository : IRestaurantTableRepository
         return new PagedResult<RestaurantTable>(items, totalCount);
     }
 
-
+    public async Task<RestaurantTable?> GetPublicByRestaurantIdAndNumberAsync(
+    Guid restaurantId,
+    int number,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.RestaurantTables
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(
+                table =>
+                    table.RestaurantId == restaurantId &&
+                    table.Number == number &&
+                    !table.IsDeleted,
+                cancellationToken);
+    }
     public async Task<bool> ExistsByNumberAsync(
         int number,
         Guid? ignoredTableId = null,

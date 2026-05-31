@@ -36,6 +36,7 @@ public sealed class GetClientsQueryHandler
                 user.IsActive,
                 user.RestaurantId,
                 user.Restaurant?.Name,
+                user.Restaurant?.Slug,
                 user.Restaurant?.Document,
                 user.Restaurant?.IsActive,
                 user.CreatedAt,

@@ -22,6 +22,11 @@ public sealed class OrderMapping : IEntityTypeConfiguration<Order>
             .IsRequired()
             .HasConversion<int>();
 
+        builder.Property(order => order.PublicAccessCode)
+             .HasMaxLength(100);
+
+        builder.HasIndex(order => order.PublicAccessCode);
+
         builder.Property(order => order.DeliveredAt);
 
         builder.Property(order => order.CreatedAt)

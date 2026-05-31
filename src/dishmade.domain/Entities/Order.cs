@@ -12,6 +12,8 @@ public sealed class Order : RestaurantScopedEntity
 
     public DateTime? DeliveredAt { get; private set; }
 
+    public string? PublicAccessCode { get; private set; }
+
     public ICollection<OrderItem> Items { get; private set; } = [];
 
     private Order()
@@ -67,6 +69,15 @@ public sealed class Order : RestaurantScopedEntity
 
         Status = OrderStatus.Delivered;
         DeliveredAt = DateTime.UtcNow;
+        SetUpdatedAt();
+    }
+
+    public void SetPublicAccessCode(string accessCode)
+    {
+        if (string.IsNullOrWhiteSpace(accessCode))
+            throw new ArgumentException("O código público do pedido é obrigatório.", nameof(accessCode));
+
+        PublicAccessCode = accessCode;
         SetUpdatedAt();
     }
 

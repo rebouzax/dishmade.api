@@ -23,4 +23,14 @@ public interface IDishRepository
         string name,
         Guid? ignoredDishId = null,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Dish>> GetPublicByRestaurantIdAsync(
+    Guid restaurantId,
+    Guid? categoryId = null,
+    CancellationToken cancellationToken = default);
+
+    Task<Dish?> GetPublicAvailableByIdAsync(
+        Guid dishId,
+        Guid restaurantId,
+        CancellationToken cancellationToken = default);
 }

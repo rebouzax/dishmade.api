@@ -19,4 +19,6 @@ public interface ICategoryRepository
     Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Category>> GetPublicByRestaurantIdAsync(Guid restaurantId, CancellationToken cancellationToken = default);
 }

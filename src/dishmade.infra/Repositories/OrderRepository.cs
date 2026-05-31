@@ -170,4 +170,21 @@ public sealed class OrderRepository : IOrderRepository
             .OrderByDescending(order => order.DeliveredAt ?? order.UpdatedAt ?? order.CreatedAt)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<Order?> GetPublicByIdAndAccessCodeAsync(
+    Guid orderId,
+    string accessCode,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.Orders
+            .IgnoreQueryFilters()
+            .Include(order => order.Table)
+            .Include(order => order.Items)
+                .ThenInclude(item => item.Dish)
+            .FirstOrDefaultAsync(
+                order =>
+                    order.Id == orderId &&
+                    order.PublicAccessCode == accessCode,
+                cancellationToken);
+    }
 }

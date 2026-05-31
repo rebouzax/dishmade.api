@@ -7,6 +7,7 @@ public sealed record ClientResponse(
     bool IsActive,
     Guid? RestaurantId,
     string? RestaurantName,
+    string? RestaurantSlug,
     string? RestaurantDocument,
     bool? RestaurantIsActive,
     DateTime CreatedAt,

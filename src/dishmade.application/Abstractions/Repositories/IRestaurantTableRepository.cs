@@ -22,4 +22,9 @@ public interface IRestaurantTableRepository
         int number,
         Guid? ignoredTableId = null,
         CancellationToken cancellationToken = default);
+
+    Task<RestaurantTable?> GetPublicByRestaurantIdAndNumberAsync(
+    Guid restaurantId,
+    int number,
+    CancellationToken cancellationToken = default);
 }

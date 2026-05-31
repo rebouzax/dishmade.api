@@ -9,4 +9,8 @@ public interface IDishImageRepository
     Task<DishImage?> GetByDishIdAsync(Guid dishId, CancellationToken cancellationToken = default);
 
     void Remove(DishImage image);
+
+    Task<DishImage?> GetPublicByDishIdAsync(
+    Guid dishId,
+    CancellationToken cancellationToken = default);
 }

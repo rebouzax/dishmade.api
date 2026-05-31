@@ -1,6 +1,7 @@
 ﻿using dishmade.application.Abstractions.Auth;
 using dishmade.application.Abstractions.Data;
 using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Common.Slugs;
 using dishmade.domain.Entities;
 using MediatR;
 
@@ -36,9 +37,20 @@ public sealed class CreateClientCommandHandler : IRequestHandler<CreateClientCom
         if (emailAlreadyExists)
             throw new InvalidOperationException("Já existe um usuário com esse e-mail.");
 
+        var baseSlug = SlugHelper.Generate(request.RestaurantName);
+        var slug = baseSlug;
+
+        var slugAlreadyExists = await _restaurantRepository.ExistsBySlugAsync(
+            slug,
+            cancellationToken);
+
+        if (slugAlreadyExists)
+            slug = $"{baseSlug}-{Guid.NewGuid().ToString()[..8]}";
+
         var restaurant = new Restaurant(
             request.RestaurantName,
-            request.RestaurantDocument);
+            request.RestaurantDocument,
+            slug);
 
         var user = AppUser.CreateClient(
             request.UserName,

@@ -90,4 +90,48 @@ public sealed class DishRepository : IDishRepository
                     (!ignoredDishId.HasValue || dish.Id != ignoredDishId.Value),
                 cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Dish>> GetPublicByRestaurantIdAsync(
+    Guid restaurantId,
+    Guid? categoryId = null,
+    CancellationToken cancellationToken = default)
+    {
+        var query = _context.Dishes
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Include(dish => dish.Category)
+            .Where(dish =>
+                dish.RestaurantId == restaurantId &&
+                !dish.IsDeleted &&
+                dish.IsAvailable &&
+                dish.Category.IsActive);
+
+        if (categoryId.HasValue)
+        {
+            query = query.Where(dish => dish.CategoryId == categoryId.Value);
+        }
+
+        return await query
+            .OrderBy(dish => dish.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<Dish?> GetPublicAvailableByIdAsync(
+        Guid dishId,
+        Guid restaurantId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Dishes
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Include(dish => dish.Category)
+            .FirstOrDefaultAsync(
+                dish =>
+                    dish.Id == dishId &&
+                    dish.RestaurantId == restaurantId &&
+                    !dish.IsDeleted &&
+                    dish.IsAvailable &&
+                    dish.Category.IsActive,
+                cancellationToken);
+    }
 }

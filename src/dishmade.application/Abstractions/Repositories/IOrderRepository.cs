@@ -34,4 +34,9 @@ public interface IOrderRepository
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    Task<Order?> GetPublicByIdAndAccessCodeAsync(
+    Guid orderId,
+    string accessCode,
+    CancellationToken cancellationToken = default);
 }

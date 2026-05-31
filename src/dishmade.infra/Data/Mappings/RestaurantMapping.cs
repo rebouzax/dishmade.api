@@ -19,6 +19,13 @@ public sealed class RestaurantMapping : IEntityTypeConfiguration<Restaurant>
             .IsRequired()
             .HasMaxLength(150);
 
+        builder.Property(restaurant => restaurant.Slug)
+            .IsRequired()
+            .HasMaxLength(180);
+
+        builder.HasIndex(restaurant => restaurant.Slug)
+            .IsUnique();
+
         builder.Property(restaurant => restaurant.Document)
             .HasMaxLength(30);
 

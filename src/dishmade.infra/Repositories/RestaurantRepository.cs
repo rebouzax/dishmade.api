@@ -24,4 +24,29 @@ public sealed class RestaurantRepository : IRestaurantRepository
         return await _context.Restaurants
             .FirstOrDefaultAsync(restaurant => restaurant.Id == id, cancellationToken);
     }
+
+    public async Task<Restaurant?> GetBySlugAsync(
+        string slug,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedSlug = slug.Trim().ToLowerInvariant();
+
+        return await _context.Restaurants
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                restaurant => restaurant.Slug == normalizedSlug,
+                cancellationToken);
+    }
+
+    public async Task<bool> ExistsBySlugAsync(
+        string slug,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedSlug = slug.Trim().ToLowerInvariant();
+
+        return await _context.Restaurants
+            .AnyAsync(
+                restaurant => restaurant.Slug == normalizedSlug,
+                cancellationToken);
+    }
 }

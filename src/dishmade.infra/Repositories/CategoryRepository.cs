@@ -75,4 +75,18 @@ public sealed class CategoryRepository : ICategoryRepository
         return await _context.Categories
             .AnyAsync(category => category.Id == id, cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Category>> GetPublicByRestaurantIdAsync(
+    Guid restaurantId,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.Categories
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(category =>
+                category.RestaurantId == restaurantId &&
+                category.IsActive)
+            .OrderBy(category => category.Name)
+            .ToListAsync(cancellationToken);
+    }
 }
