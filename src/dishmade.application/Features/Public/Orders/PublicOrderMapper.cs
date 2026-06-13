@@ -10,7 +10,7 @@ public static class PublicOrderMapper
             .Select(item => new PublicOrderItemResponse(
                 item.Id,
                 item.DishId,
-                item.Dish.Name,
+                item.Dish?.Name ?? "Prato não carregado",
                 item.Quantity,
                 item.UnitPrice,
                 item.GetTotal()))

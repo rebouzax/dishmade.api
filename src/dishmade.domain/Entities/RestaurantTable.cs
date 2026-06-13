@@ -8,6 +8,9 @@ public sealed class RestaurantTable : RestaurantScopedEntity
     public bool IsOccupied { get; private set; }
     public bool IsDeleted { get; private set; }
 
+    public bool IsMenuQrCodeEnabled { get; private set; }
+    public DateTime? MenuQrCodeEnabledAt { get; private set; }
+
     private RestaurantTable()
     {
     }
@@ -20,6 +23,7 @@ public sealed class RestaurantTable : RestaurantScopedEntity
         Number = number;
         IsOccupied = false;
         IsDeleted = false;
+        IsMenuQrCodeEnabled = false;
     }
 
     public void UpdateNumber(int number)
@@ -54,12 +58,37 @@ public sealed class RestaurantTable : RestaurantScopedEntity
         SetUpdatedAt();
     }
 
+    public void EnableMenuQrCode()
+    {
+        if (IsDeleted)
+            throw new InvalidOperationException("Não é possível habilitar QR Code para uma mesa removida.");
+
+        IsMenuQrCodeEnabled = true;
+        MenuQrCodeEnabledAt = DateTime.UtcNow;
+
+        SetUpdatedAt();
+    }
+
+    public void DisableMenuQrCode()
+    {
+        if (IsDeleted)
+            throw new InvalidOperationException("Não é possível desabilitar QR Code para uma mesa removida.");
+
+        IsMenuQrCodeEnabled = false;
+        MenuQrCodeEnabledAt = null;
+
+        SetUpdatedAt();
+    }
+
     public void Delete()
     {
         if (IsOccupied)
             throw new InvalidOperationException("Não é possível remover uma mesa ocupada.");
 
         IsDeleted = true;
+        IsMenuQrCodeEnabled = false;
+        MenuQrCodeEnabledAt = null;
+
         SetUpdatedAt();
     }
 

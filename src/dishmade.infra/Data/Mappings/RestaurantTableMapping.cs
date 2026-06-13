@@ -30,6 +30,10 @@ public sealed class RestaurantTableMapping : IEntityTypeConfiguration<Restaurant
 
         builder.Property(table => table.IsDeleted)
             .IsRequired();
+        builder.Property(table => table.IsMenuQrCodeEnabled)
+            .IsRequired();
+
+        builder.Property(table => table.MenuQrCodeEnabledAt);
 
         builder.Property(table => table.CreatedAt)
             .IsRequired();

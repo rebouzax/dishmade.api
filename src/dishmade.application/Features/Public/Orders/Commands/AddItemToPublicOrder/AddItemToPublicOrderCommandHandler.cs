@@ -58,6 +58,14 @@ public sealed class AddItemToPublicOrderCommandHandler
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return PublicOrderMapper.ToResponse(order, restaurant);
+        var updatedOrder = await _orderRepository.GetPublicByIdAndAccessCodeAsync(
+            request.OrderId,
+            request.AccessCode,
+            cancellationToken);
+
+        if (updatedOrder is null)
+            throw new KeyNotFoundException("Pedido não encontrado.");
+
+        return PublicOrderMapper.ToResponse(updatedOrder, restaurant);
     }
 }

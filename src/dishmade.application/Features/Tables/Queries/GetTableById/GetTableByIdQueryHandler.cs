@@ -26,6 +26,8 @@ public sealed class GetTableByIdQueryHandler : IRequestHandler<GetTableByIdQuery
             table.Id,
             table.Number,
             table.IsOccupied,
+            table.IsMenuQrCodeEnabled,
+            table.MenuQrCodeEnabledAt,
             table.CreatedAt,
             table.UpdatedAt);
     }

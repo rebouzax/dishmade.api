@@ -1,14 +1,18 @@
 ﻿using dishmade.application.Features.Tables.Commands.CreateTable;
 using dishmade.application.Features.Tables.Commands.DeleteTable;
+using dishmade.application.Features.Tables.Commands.DisableTableMenuQrCode;
+using dishmade.application.Features.Tables.Commands.EnableTableMenuQrCode;
 using dishmade.application.Features.Tables.Commands.OccupyTable;
 using dishmade.application.Features.Tables.Commands.ReleaseTable;
 using dishmade.application.Features.Tables.Commands.UpdateTable;
 using dishmade.application.Features.Tables.Queries.GetTableById;
+using dishmade.application.Features.Tables.Queries.GetTableMenuQrCode;
 using dishmade.application.Features.Tables.Queries.GetTables;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using dishmade.domain.Constants;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using QRCoder;
 
 namespace dishmade.api.Controllers;
 
@@ -106,6 +110,69 @@ public sealed class TablesController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPatch("{id:guid}/menu-qr-code/enable")]
+    public async Task<IActionResult> EnableMenuQrCode(
+    Guid id,
+    CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new EnableTableMenuQrCodeCommand(id),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpPatch("{id:guid}/menu-qr-code/disable")]
+    public async Task<IActionResult> DisableMenuQrCode(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new DisableTableMenuQrCodeCommand(id),
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpGet("{id:guid}/menu-qr-code")]
+    public async Task<IActionResult> GetMenuQrCode(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new GetTableMenuQrCodeQuery(id),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("{id:guid}/menu-qr-code/image")]
+    public async Task<IActionResult> GetMenuQrCodeImage(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new GetTableMenuQrCodeQuery(id),
+            cancellationToken);
+
+        if (!response.IsEnabled || string.IsNullOrWhiteSpace(response.MenuUrl))
+            return BadRequest(new { message = "O QR Code do cardápio não está habilitado para esta mesa." });
+
+        using var qrGenerator = new QRCodeGenerator();
+        using var qrCodeData = qrGenerator.CreateQrCode(
+            response.MenuUrl,
+            QRCodeGenerator.ECCLevel.Q);
+
+        var pngQrCode = new PngByteQRCode(qrCodeData);
+        var qrCodeBytes = pngQrCode.GetGraphic(20);
+
+        return File(
+            qrCodeBytes,
+            "image/png",
+            $"mesa-{response.TableNumber}-{response.RestaurantSlug}-qrcode.png");
+    }
+
 }
 
 public sealed record CreateTableRequest(int Number);
