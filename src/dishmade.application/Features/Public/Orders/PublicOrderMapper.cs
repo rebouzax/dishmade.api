@@ -13,7 +13,8 @@ public static class PublicOrderMapper
                 item.Dish?.Name ?? "Prato não carregado",
                 item.Quantity,
                 item.UnitPrice,
-                item.GetTotal()))
+                item.GetTotal(),
+                item.Notes))
             .ToList();
 
         return new PublicOrderResponse(

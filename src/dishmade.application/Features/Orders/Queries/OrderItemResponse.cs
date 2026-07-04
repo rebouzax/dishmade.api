@@ -6,5 +6,6 @@ public sealed record OrderItemResponse(
     string DishName,
     int Quantity,
     decimal UnitPrice,
-    decimal Total
+    decimal Total,
+    string? Notes
 );

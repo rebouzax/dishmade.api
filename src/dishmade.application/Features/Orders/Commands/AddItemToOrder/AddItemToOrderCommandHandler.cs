@@ -40,7 +40,8 @@ public sealed class AddItemToOrderCommandHandler : IRequestHandler<AddItemToOrde
         var item = order.AddItem(
             dish.Id,
             request.Quantity,
-            dish.Price);
+            dish.Price,
+            request.Notes);
 
         await _orderRepository.AddItemAsync(item, cancellationToken);
 

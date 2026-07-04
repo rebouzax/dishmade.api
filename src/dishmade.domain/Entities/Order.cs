@@ -26,7 +26,7 @@ public sealed class Order : RestaurantScopedEntity
         TableId = tableId;
     }
 
-    public OrderItem AddItem(Guid dishId, int quantity, decimal unitPrice)
+    public OrderItem AddItem(Guid dishId, int quantity, decimal unitPrice, string? notes = null)
     {
         EnsureCanBeChanged();
 
@@ -36,7 +36,12 @@ public sealed class Order : RestaurantScopedEntity
         if (unitPrice <= 0)
             throw new ArgumentException("O preço unitário deve ser maior que zero.", nameof(unitPrice));
 
-        var item = new OrderItem(Id, dishId, quantity, unitPrice);
+        var item = new OrderItem(
+            Id,
+            dishId,
+            quantity,
+            unitPrice,
+            notes);
 
         Items.Add(item);
         SetUpdatedAt();

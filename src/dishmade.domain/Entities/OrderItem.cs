@@ -12,21 +12,35 @@ public sealed class OrderItem : BaseEntity
 
     public int Quantity { get; private set; }
     public decimal UnitPrice { get; private set; }
+    public string? Notes { get; private set; }
 
     private OrderItem()
     {
     }
 
-    public OrderItem(Guid orderId, Guid dishId, int quantity, decimal unitPrice)
+    public OrderItem(
+        Guid orderId,
+        Guid dishId,
+        int quantity,
+        decimal unitPrice,
+        string? notes = null)
     {
         OrderId = orderId;
         DishId = dishId;
         Quantity = quantity;
         UnitPrice = unitPrice;
+        Notes = NormalizeNotes(notes);
     }
 
     public decimal GetTotal()
     {
         return Quantity * UnitPrice;
+    }
+
+    private static string? NormalizeNotes(string? notes)
+    {
+        return string.IsNullOrWhiteSpace(notes)
+            ? null
+            : notes.Trim();
     }
 }

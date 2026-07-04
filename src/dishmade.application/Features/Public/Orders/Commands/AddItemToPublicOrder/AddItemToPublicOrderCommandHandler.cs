@@ -51,10 +51,11 @@ public sealed class AddItemToPublicOrderCommandHandler
         if (dish is null)
             throw new KeyNotFoundException("Prato não encontrado.");
 
-        order.AddItem(
+        var item = order.AddItem(
             dish.Id,
             request.Quantity,
-            dish.Price);
+            dish.Price,
+            request.Notes);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

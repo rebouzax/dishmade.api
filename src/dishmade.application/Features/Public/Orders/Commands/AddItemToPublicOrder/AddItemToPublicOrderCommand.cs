@@ -6,5 +6,6 @@ public sealed record AddItemToPublicOrderCommand(
     Guid OrderId,
     string AccessCode,
     Guid DishId,
-    int Quantity
+    int Quantity,
+    string? Notes
 ) : IRequest<PublicOrderResponse>;

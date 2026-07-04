@@ -21,5 +21,6 @@ public sealed record PublicOrderItemResponse(
     string DishName,
     int Quantity,
     decimal UnitPrice,
-    decimal Total
+    decimal Total,
+    string? Notes
 );

@@ -28,10 +28,18 @@ public sealed class OrderItemMapping : IEntityTypeConfiguration<OrderItem>
             .IsRequired()
             .HasPrecision(10, 2);
 
+        builder.Property(item => item.Notes)
+            .HasMaxLength(500);
+
         builder.Property(item => item.CreatedAt)
             .IsRequired();
 
         builder.Property(item => item.UpdatedAt);
+
+        builder.HasOne(item => item.Order)
+            .WithMany(order => order.Items)
+            .HasForeignKey(item => item.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(item => item.Dish)
             .WithMany()

@@ -21,5 +21,9 @@ public sealed class AddItemToPublicOrderCommandValidator : AbstractValidator<Add
         RuleFor(command => command.Quantity)
             .GreaterThan(0)
             .WithMessage("A quantidade deve ser maior que zero.");
+
+        RuleFor(command => command.Notes)
+            .MaximumLength(500)
+            .WithMessage("A observação do item deve ter no máximo 500 caracteres.");
     }
 }

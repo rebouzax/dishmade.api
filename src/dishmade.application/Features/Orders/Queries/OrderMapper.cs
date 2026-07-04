@@ -13,7 +13,8 @@ public static class OrderMapper
                 item.Dish.Name,
                 item.Quantity,
                 item.UnitPrice,
-                item.GetTotal()))
+                item.GetTotal(), 
+                item.Notes))
             .ToList();
 
         return new OrderResponse(

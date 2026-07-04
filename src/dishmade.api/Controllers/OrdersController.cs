@@ -48,7 +48,8 @@ public sealed class OrdersController : ControllerBase
         var command = new AddItemToOrderCommand(
             id,
             request.DishId,
-            request.Quantity);
+            request.Quantity,
+            request.Notes);
 
         await _sender.Send(command, cancellationToken);
 
@@ -110,7 +111,8 @@ public sealed record CreateOrderRequest(Guid TableId);
 
 public sealed record AddItemToOrderRequest(
     Guid DishId,
-    int Quantity
+    int Quantity,
+    string? Notes
 );
 
 public sealed record ChangeOrderStatusRequest(OrderStatus Status);
