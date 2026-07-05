@@ -14,6 +14,8 @@ public sealed class OrderItem : BaseEntity
     public decimal UnitPrice { get; private set; }
     public string? Notes { get; private set; }
 
+    public ICollection<OrderItemOption> Options { get; private set; } = [];
+
     private OrderItem()
     {
     }
@@ -25,6 +27,12 @@ public sealed class OrderItem : BaseEntity
         decimal unitPrice,
         string? notes = null)
     {
+        if (quantity <= 0)
+            throw new ArgumentException("A quantidade deve ser maior que zero.", nameof(quantity));
+
+        if (unitPrice <= 0)
+            throw new ArgumentException("O preço unitário deve ser maior que zero.", nameof(unitPrice));
+
         OrderId = orderId;
         DishId = dishId;
         Quantity = quantity;
@@ -32,9 +40,29 @@ public sealed class OrderItem : BaseEntity
         Notes = NormalizeNotes(notes);
     }
 
+    public void AddOption(
+        Guid dishOptionId,
+        string optionName,
+        decimal additionalPrice)
+    {
+        var option = new OrderItemOption(
+            Id,
+            dishOptionId,
+            optionName,
+            additionalPrice);
+
+        Options.Add(option);
+        SetUpdatedAt();
+    }
+
+    public decimal GetOptionsTotal()
+    {
+        return Options.Sum(option => option.AdditionalPrice);
+    }
+
     public decimal GetTotal()
     {
-        return Quantity * UnitPrice;
+        return (UnitPrice + GetOptionsTotal()) * Quantity;
     }
 
     private static string? NormalizeNotes(string? notes)

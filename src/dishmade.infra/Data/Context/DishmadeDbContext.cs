@@ -25,6 +25,9 @@ public sealed class DishmadeDbContext : DbContext
     public DbSet<RestaurantTable> RestaurantTables => Set<RestaurantTable>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<DishOptionGroup> DishOptionGroups => Set<DishOptionGroup>();
+    public DbSet<DishOption> DishOptions => Set<DishOption>();
+    public DbSet<OrderItemOption> OrderItemOptions => Set<OrderItemOption>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -64,5 +67,17 @@ public sealed class DishmadeDbContext : DbContext
             .HasQueryFilter(order =>
                 _currentUserService.RestaurantId.HasValue &&
                 order.RestaurantId == _currentUserService.RestaurantId.Value);
+
+        modelBuilder.Entity<DishOptionGroup>()
+            .HasQueryFilter(group =>
+                !group.IsDeleted &&
+                _currentUserService.RestaurantId.HasValue &&
+                group.RestaurantId == _currentUserService.RestaurantId.Value);
+
+        modelBuilder.Entity<DishOption>()
+                .HasQueryFilter(option =>
+                    !option.IsDeleted &&
+                    _currentUserService.RestaurantId.HasValue &&
+                    option.RestaurantId == _currentUserService.RestaurantId.Value);
     }
 }

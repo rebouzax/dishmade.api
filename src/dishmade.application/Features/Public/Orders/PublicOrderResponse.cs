@@ -21,6 +21,14 @@ public sealed record PublicOrderItemResponse(
     string DishName,
     int Quantity,
     decimal UnitPrice,
+    decimal OptionsTotal,
     decimal Total,
-    string? Notes
+    string? Notes,
+    IReadOnlyList<PublicOrderItemOptionResponse> Options
+);
+
+public sealed record PublicOrderItemOptionResponse(
+    Guid DishOptionId,
+    string Name,
+    decimal AdditionalPrice
 );

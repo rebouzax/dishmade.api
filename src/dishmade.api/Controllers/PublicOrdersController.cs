@@ -52,7 +52,8 @@ public sealed class PublicOrdersController : ControllerBase
                 request.AccessCode,
                 request.DishId,
                 request.Quantity,
-                request.Notes),
+                request.Notes,
+                request.OptionIds ?? []),
             cancellationToken);
 
         return Ok(response);
@@ -81,5 +82,6 @@ public sealed record AddItemToPublicOrderRequest(
     string AccessCode,
     Guid DishId,
     int Quantity,
-    string? Notes
+    string? Notes,
+    IReadOnlyList<Guid>? OptionIds
 );

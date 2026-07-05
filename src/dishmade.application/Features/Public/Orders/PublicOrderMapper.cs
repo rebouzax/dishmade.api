@@ -13,8 +13,15 @@ public static class PublicOrderMapper
                 item.Dish?.Name ?? "Prato não carregado",
                 item.Quantity,
                 item.UnitPrice,
+                item.GetOptionsTotal(),
                 item.GetTotal(),
-                item.Notes))
+                item.Notes,
+                item.Options
+                    .Select(option => new PublicOrderItemOptionResponse(
+                        option.DishOptionId,
+                        option.OptionName,
+                        option.AdditionalPrice))
+                    .ToList()))
             .ToList();
 
         return new PublicOrderResponse(

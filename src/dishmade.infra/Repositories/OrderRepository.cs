@@ -32,6 +32,8 @@ public sealed class OrderRepository : IOrderRepository
             .Include(order => order.Table)
             .Include(order => order.Items)
                 .ThenInclude(item => item.Dish)
+            .Include(order => order.Items)
+                .ThenInclude(item => item.Options)
             .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
     }
 
@@ -178,9 +180,12 @@ public sealed class OrderRepository : IOrderRepository
     {
         return await _context.Orders
             .IgnoreQueryFilters()
+            .AsNoTracking()
             .Include(order => order.Table)
             .Include(order => order.Items)
                 .ThenInclude(item => item.Dish)
+            .Include(order => order.Items)
+                .ThenInclude(item => item.Options)
             .FirstOrDefaultAsync(
                 order =>
                     order.Id == orderId &&

@@ -23,5 +23,21 @@ public sealed record PublicDishResponse(
     decimal Price,
     Guid CategoryId,
     string CategoryName,
-    string ImageUrl
+    string ImageUrl,
+    IReadOnlyList<PublicDishOptionGroupResponse> OptionGroups
+);
+
+public sealed record PublicDishOptionGroupResponse(
+    Guid Id,
+    string Name,
+    bool IsRequired,
+    int MinSelection,
+    int MaxSelection,
+    IReadOnlyList<PublicDishOptionResponse> Options
+);
+
+public sealed record PublicDishOptionResponse(
+    Guid Id,
+    string Name,
+    decimal AdditionalPrice
 );
