@@ -72,6 +72,12 @@ public sealed class DishOptionGroup : RestaurantScopedEntity
     {
         IsDeleted = true;
         IsActive = false;
+
+        foreach (var option in Options)
+        {
+            option.Delete();
+        }
+
         SetUpdatedAt();
     }
 
