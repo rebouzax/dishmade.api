@@ -23,10 +23,8 @@ public static class DependencyInjection
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IPasswordHashService, PasswordHashService>();
-
         services.AddScoped<IRestaurantRepository, RestaurantRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
-
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IDishRepository, DishRepository>();
         services.AddScoped<IDishImageRepository, DishImageRepository>();
@@ -35,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IDishOptionGroupRepository, DishOptionGroupRepository>();
         services.AddScoped<IDishOptionRepository, DishOptionRepository>();
+        services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>();
 
         return services;
     }

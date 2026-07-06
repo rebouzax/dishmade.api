@@ -28,6 +28,7 @@ public sealed class DishmadeDbContext : DbContext
     public DbSet<DishOptionGroup> DishOptionGroups => Set<DishOptionGroup>();
     public DbSet<DishOption> DishOptions => Set<DishOption>();
     public DbSet<OrderItemOption> OrderItemOptions => Set<OrderItemOption>();
+    public DbSet<ServiceRequest> ServiceRequests => Set<ServiceRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,9 +53,9 @@ public sealed class DishmadeDbContext : DbContext
                 dish.RestaurantId == _currentUserService.RestaurantId.Value);
         
         modelBuilder.Entity<DishImage>()
-        .HasQueryFilter(image =>
-            _currentUserService.RestaurantId.HasValue &&
-            image.RestaurantId == _currentUserService.RestaurantId.Value);
+            .HasQueryFilter(image =>
+                _currentUserService.RestaurantId.HasValue &&
+                image.RestaurantId == _currentUserService.RestaurantId.Value);
 
 
         modelBuilder.Entity<RestaurantTable>()
@@ -75,9 +76,13 @@ public sealed class DishmadeDbContext : DbContext
                 group.RestaurantId == _currentUserService.RestaurantId.Value);
 
         modelBuilder.Entity<DishOption>()
-                .HasQueryFilter(option =>
-                    !option.IsDeleted &&
-                    _currentUserService.RestaurantId.HasValue &&
-                    option.RestaurantId == _currentUserService.RestaurantId.Value);
+            .HasQueryFilter(option =>
+               !option.IsDeleted &&
+               _currentUserService.RestaurantId.HasValue &&
+               option.RestaurantId == _currentUserService.RestaurantId.Value);
+        modelBuilder.Entity<ServiceRequest>()
+            .HasQueryFilter(request =>
+               _currentUserService.RestaurantId.HasValue &&
+               request.RestaurantId == _currentUserService.RestaurantId.Value);
     }
 }
