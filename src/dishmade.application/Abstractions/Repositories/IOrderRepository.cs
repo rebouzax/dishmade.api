@@ -39,4 +39,15 @@ public interface IOrderRepository
     Guid orderId,
     string accessCode,
     CancellationToken cancellationToken = default);
+
+    Task<Order?> GetOpenByRestaurantIdAndTableIdAsync(
+    Guid restaurantId,
+    Guid tableId,
+    CancellationToken cancellationToken = default);
+
+    Task<Order?> GetOpenDetailsByRestaurantIdAndTableIdAndAccessCodeAsync(
+        Guid restaurantId,
+        Guid tableId,
+        string accessCode,
+        CancellationToken cancellationToken = default);
 }

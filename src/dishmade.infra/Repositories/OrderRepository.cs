@@ -173,6 +173,47 @@ public sealed class OrderRepository : IOrderRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<Order?> GetOpenByRestaurantIdAndTableIdAsync(
+    Guid restaurantId,
+    Guid tableId,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.Orders
+            .IgnoreQueryFilters()
+            .Include(order => order.Table)
+            .FirstOrDefaultAsync(
+                order =>
+                    order.RestaurantId == restaurantId &&
+                    order.TableId == tableId &&
+                    order.Status != OrderStatus.Delivered &&
+                    order.Status != OrderStatus.Canceled,
+                cancellationToken);
+    }
+
+    public async Task<Order?> GetOpenDetailsByRestaurantIdAndTableIdAndAccessCodeAsync(
+    Guid restaurantId,
+    Guid tableId,
+    string accessCode,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.Orders
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Include(order => order.Table)
+            .Include(order => order.Items)
+                .ThenInclude(item => item.Dish)
+            .Include(order => order.Items)
+                .ThenInclude(item => item.Options)
+            .FirstOrDefaultAsync(
+                order =>
+                    order.RestaurantId == restaurantId &&
+                    order.TableId == tableId &&
+                    order.PublicAccessCode == accessCode &&
+                    order.Status != OrderStatus.Delivered &&
+                    order.Status != OrderStatus.Canceled,
+                cancellationToken);
+    }
+
     public async Task<Order?> GetPublicByIdAndAccessCodeAsync(
     Guid orderId,
     string accessCode,
@@ -192,4 +233,5 @@ public sealed class OrderRepository : IOrderRepository
                     order.PublicAccessCode == accessCode,
                 cancellationToken);
     }
+
 }

@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
+using dishmade.application.Common.Exceptions;
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 
 namespace dishmade.api.Middlewares;
 
@@ -92,6 +94,19 @@ public sealed class ExceptionHandlingMiddleware
             {
                 statusCode = context.Response.StatusCode,
                 message = exception.Message
+            };
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        }
+        catch (ConflictException conflictException)
+        {
+            context.Response.StatusCode = StatusCodes.Status409Conflict;
+            context.Response.ContentType = "application/json";
+
+            var response = new
+            {
+                statusCode = context.Response.StatusCode,
+                message = conflictException.Message
             };
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));

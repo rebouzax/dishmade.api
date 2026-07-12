@@ -1,5 +1,7 @@
 ﻿using dishmade.application.Features.Public.Orders.Commands.AddItemToPublicOrder;
 using dishmade.application.Features.Public.Orders.Commands.CreatePublicOrder;
+using dishmade.application.Features.Public.Orders.Commands.OpenOrCreatePublicOrder;
+using dishmade.application.Features.Public.Orders.Queries.GetCurrentPublicOrderByTable;
 using dishmade.application.Features.Public.Orders.Queries.GetPublicOrderById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -71,6 +73,38 @@ public sealed class PublicOrdersController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpPost("open-or-create")]
+    public async Task<IActionResult> OpenOrCreate(
+    [FromBody] OpenOrCreatePublicOrderRequest request,
+    CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new OpenOrCreatePublicOrderCommand(
+                request.RestaurantSlug,
+                request.TableNumber,
+                request.AccessCode),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("~/api/public/restaurants/{slug}/tables/{tableNumber:int}/current-order")]
+    public async Task<IActionResult> GetCurrentOrderByTable(
+    string slug,
+    int tableNumber,
+    [FromQuery] string accessCode,
+    CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new GetCurrentPublicOrderByTableQuery(
+                slug,
+                tableNumber,
+                accessCode),
+            cancellationToken);
+
+        return Ok(response);
+    }
 }
 
 public sealed record CreatePublicOrderRequest(
@@ -84,4 +118,10 @@ public sealed record AddItemToPublicOrderRequest(
     int Quantity,
     string? Notes,
     IReadOnlyList<Guid>? OptionIds
+);
+
+public sealed record OpenOrCreatePublicOrderRequest(
+    string RestaurantSlug,
+    int TableNumber,
+    string? AccessCode
 );

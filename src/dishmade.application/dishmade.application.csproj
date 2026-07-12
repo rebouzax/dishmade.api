@@ -2,13 +2,10 @@
 
   <ItemGroup>
     <Compile Remove="Abstractions\Services\**" />
-    <Compile Remove="Common\Exceptions\**" />
     <Compile Remove="Common\Results\**" />
     <EmbeddedResource Remove="Abstractions\Services\**" />
-    <EmbeddedResource Remove="Common\Exceptions\**" />
     <EmbeddedResource Remove="Common\Results\**" />
     <None Remove="Abstractions\Services\**" />
-    <None Remove="Common\Exceptions\**" />
     <None Remove="Common\Results\**" />
   </ItemGroup>
 
