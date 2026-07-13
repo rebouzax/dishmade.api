@@ -22,6 +22,22 @@ public sealed class OrderMapping : IEntityTypeConfiguration<Order>
             .IsRequired()
             .HasConversion<int>();
 
+        builder.Property(order => order.PaymentStatus)
+            .IsRequired()
+            .HasConversion<int>();
+
+        builder.Property(order => order.DiscountAmount)
+            .IsRequired()
+            .HasPrecision(10, 2);
+
+        builder.Property(order => order.ServiceFeeAmount)
+            .IsRequired()
+            .HasPrecision(10, 2);
+
+        builder.Property(order => order.ClosedAt);
+
+        builder.Property(order => order.PaidAt);
+
         builder.Property(order => order.PublicAccessCode)
              .HasMaxLength(100);
 

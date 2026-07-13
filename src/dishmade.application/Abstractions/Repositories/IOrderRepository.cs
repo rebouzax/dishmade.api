@@ -50,4 +50,6 @@ public interface IOrderRepository
         Guid tableId,
         string accessCode,
         CancellationToken cancellationToken = default);
+
+    Task AddPaymentAsync(OrderPayment payment, CancellationToken cancellationToken = default);
 }

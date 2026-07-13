@@ -1,14 +1,17 @@
 ﻿using dishmade.application.Features.Orders.Commands.AddItemToOrder;
 using dishmade.application.Features.Orders.Commands.CancelOrder;
 using dishmade.application.Features.Orders.Commands.ChangeOrderStatus;
+using dishmade.application.Features.Orders.Commands.CloseOrderAccount;
 using dishmade.application.Features.Orders.Commands.CreateOrder;
+using dishmade.application.Features.Orders.Commands.RegisterOrderPayment;
 using dishmade.application.Features.Orders.Queries.GetOrderById;
+using dishmade.application.Features.Orders.Queries.GetOrderReceipt;
 using dishmade.application.Features.Orders.Queries.GetOrders;
+using dishmade.domain.Constants;
 using dishmade.domain.Enums;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using dishmade.domain.Constants;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace dishmade.api.Controllers;
 
@@ -105,6 +108,52 @@ public sealed class OrdersController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPost("{id:guid}/close")]
+    public async Task<IActionResult> CloseAccount(
+    Guid id,
+    [FromBody] CloseOrderAccountRequest request,
+    CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new CloseOrderAccountCommand(
+                id,
+                request.DiscountAmount,
+                request.ServiceFeeAmount),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpPost("{id:guid}/payments")]
+    public async Task<IActionResult> RegisterPayment(
+        Guid id,
+        [FromBody] RegisterOrderPaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new RegisterOrderPaymentCommand(
+                id,
+                request.Method,
+                request.Amount,
+                request.Notes),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("{id:guid}/receipt")]
+    public async Task<IActionResult> GetReceipt(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new GetOrderReceiptQuery(id),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
 }
 
 public sealed record CreateOrderRequest(Guid TableId);
@@ -116,3 +165,14 @@ public sealed record AddItemToOrderRequest(
 );
 
 public sealed record ChangeOrderStatusRequest(OrderStatus Status);
+
+public sealed record CloseOrderAccountRequest(
+    decimal DiscountAmount,
+    decimal ServiceFeeAmount
+);
+
+public sealed record RegisterOrderPaymentRequest(
+    PaymentMethod Method,
+    decimal Amount,
+    string? Notes
+);

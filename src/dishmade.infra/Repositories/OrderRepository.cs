@@ -26,7 +26,9 @@ public sealed class OrderRepository : IOrderRepository
         await _context.OrderItems.AddAsync(item, cancellationToken);
     }
 
-    public async Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Order?> GetByIdAsync(
+    Guid id,
+    CancellationToken cancellationToken = default)
     {
         return await _context.Orders
             .Include(order => order.Table)
@@ -34,6 +36,7 @@ public sealed class OrderRepository : IOrderRepository
                 .ThenInclude(item => item.Dish)
             .Include(order => order.Items)
                 .ThenInclude(item => item.Options)
+            .Include(order => order.Payments)
             .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
     }
 
@@ -227,11 +230,19 @@ public sealed class OrderRepository : IOrderRepository
                 .ThenInclude(item => item.Dish)
             .Include(order => order.Items)
                 .ThenInclude(item => item.Options)
+            .Include(order => order.Payments)
             .FirstOrDefaultAsync(
                 order =>
                     order.Id == orderId &&
                     order.PublicAccessCode == accessCode,
                 cancellationToken);
+    }
+
+    public async Task AddPaymentAsync(
+    OrderPayment payment,
+    CancellationToken cancellationToken = default)
+    {
+        await _context.OrderPayments.AddAsync(payment, cancellationToken);
     }
 
 }

@@ -10,11 +10,19 @@ public sealed class Order : RestaurantScopedEntity
 
     public OrderStatus Status { get; private set; } = OrderStatus.Created;
 
+    public PaymentStatus PaymentStatus { get; private set; } = PaymentStatus.Pending;
+
+    public decimal DiscountAmount { get; private set; }
+    public decimal ServiceFeeAmount { get; private set; }
+
+    public DateTime? ClosedAt { get; private set; }
+    public DateTime? PaidAt { get; private set; }
     public DateTime? DeliveredAt { get; private set; }
 
     public string? PublicAccessCode { get; private set; }
 
     public ICollection<OrderItem> Items { get; private set; } = [];
+    public ICollection<OrderPayment> Payments { get; private set; } = [];
 
     private Order()
     {
@@ -26,7 +34,11 @@ public sealed class Order : RestaurantScopedEntity
         TableId = tableId;
     }
 
-    public OrderItem AddItem(Guid dishId, int quantity, decimal unitPrice, string? notes = null)
+    public OrderItem AddItem(
+        Guid dishId,
+        int quantity,
+        decimal unitPrice,
+        string? notes = null)
     {
         EnsureCanBeChanged();
 
@@ -47,6 +59,73 @@ public sealed class Order : RestaurantScopedEntity
         SetUpdatedAt();
 
         return item;
+    }
+
+    public void CloseAccount(
+        decimal discountAmount,
+        decimal serviceFeeAmount)
+    {
+        if (Status == OrderStatus.Canceled)
+            throw new InvalidOperationException("Pedidos cancelados não podem ser fechados.");
+
+        if (Status == OrderStatus.Delivered)
+            throw new InvalidOperationException("Pedidos entregues não podem ser fechados novamente.");
+
+        if (Status != OrderStatus.Ready)
+            throw new InvalidOperationException("Somente pedidos prontos podem ter a conta fechada.");
+
+        if (!Items.Any())
+            throw new InvalidOperationException("Não é possível fechar uma conta sem itens.");
+
+        if (discountAmount < 0)
+            throw new ArgumentException("O desconto não pode ser negativo.", nameof(discountAmount));
+
+        if (serviceFeeAmount < 0)
+            throw new ArgumentException("A taxa de serviço não pode ser negativa.", nameof(serviceFeeAmount));
+
+        var subtotalWithServiceFee = GetSubtotal() + serviceFeeAmount;
+
+        if (discountAmount > subtotalWithServiceFee)
+            throw new InvalidOperationException("O desconto não pode ser maior que o subtotal somado à taxa de serviço.");
+
+        DiscountAmount = discountAmount;
+        ServiceFeeAmount = serviceFeeAmount;
+        ClosedAt = DateTime.UtcNow;
+
+        UpdatePaymentStatus();
+        SetUpdatedAt();
+    }
+
+    public OrderPayment RegisterPayment(
+        PaymentMethod method,
+        decimal amount,
+        string? notes = null)
+    {
+        if (Status == OrderStatus.Canceled)
+            throw new InvalidOperationException("Pedidos cancelados não podem receber pagamento.");
+
+        if (Status == OrderStatus.Delivered)
+            throw new InvalidOperationException("Pedidos entregues não podem receber novo pagamento.");
+
+        if (ClosedAt is null)
+            throw new InvalidOperationException("A conta precisa ser fechada antes de registrar pagamento.");
+
+        if (amount <= 0)
+            throw new ArgumentException("O valor do pagamento deve ser maior que zero.", nameof(amount));
+
+        var payment = new OrderPayment(
+            Id,
+            RestaurantId,
+            method,
+            amount,
+            notes);
+
+        Payments.Add(payment);
+
+        UpdatePaymentStatus();
+        SetUpdatedAt();
+
+        return payment;
     }
 
     public void StartPreparation()
@@ -77,15 +156,6 @@ public sealed class Order : RestaurantScopedEntity
         SetUpdatedAt();
     }
 
-    public void SetPublicAccessCode(string accessCode)
-    {
-        if (string.IsNullOrWhiteSpace(accessCode))
-            throw new ArgumentException("O código público do pedido é obrigatório.", nameof(accessCode));
-
-        PublicAccessCode = accessCode;
-        SetUpdatedAt();
-    }
-
     public void Cancel()
     {
         if (Status == OrderStatus.Delivered)
@@ -95,12 +165,92 @@ public sealed class Order : RestaurantScopedEntity
             throw new InvalidOperationException("O pedido já está cancelado.");
 
         Status = OrderStatus.Canceled;
+        PaymentStatus = PaymentStatus.Canceled;
+
         SetUpdatedAt();
+    }
+
+    public void SetPublicAccessCode(string accessCode)
+    {
+        if (string.IsNullOrWhiteSpace(accessCode))
+            throw new ArgumentException("O código público do pedido é obrigatório.", nameof(accessCode));
+
+        PublicAccessCode = accessCode;
+        SetUpdatedAt();
+    }
+
+    public decimal GetSubtotal()
+    {
+        return Items.Sum(item => item.GetTotal());
+    }
+
+    public decimal GetPaidAmount()
+    {
+        return Payments
+            .Where(payment => payment.Status == PaymentStatus.Paid)
+            .Sum(payment => payment.Amount);
+    }
+
+    public decimal GetRemainingAmount()
+    {
+        var remaining = GetFinalTotal() - GetPaidAmount();
+
+        return remaining <= 0 ? 0 : remaining;
+    }
+
+    public decimal GetFinalTotal()
+    {
+        var total = GetSubtotal() + ServiceFeeAmount - DiscountAmount;
+
+        return total <= 0 ? 0 : total;
     }
 
     public decimal GetTotal()
     {
-        return Items.Sum(item => item.GetTotal());
+        return GetFinalTotal();
+    }
+
+    public bool IsFullyPaid()
+    {
+        return GetPaidAmount() >= GetFinalTotal();
+    }
+
+    public void MarkAsPaidIfFullyPaid()
+    {
+        UpdatePaymentStatus();
+
+        if (PaymentStatus == PaymentStatus.Paid)
+        {
+            PaidAt ??= DateTime.UtcNow;
+            SetUpdatedAt();
+        }
+    }
+
+    private void UpdatePaymentStatus()
+    {
+        var paidAmount = GetPaidAmount();
+        var finalTotal = GetFinalTotal();
+
+        if (finalTotal <= 0)
+        {
+            PaymentStatus = PaymentStatus.Pending;
+            return;
+        }
+
+        if (paidAmount <= 0)
+        {
+            PaymentStatus = PaymentStatus.Pending;
+            return;
+        }
+
+        if (paidAmount < finalTotal)
+        {
+            PaymentStatus = PaymentStatus.PartiallyPaid;
+            return;
+        }
+
+        PaymentStatus = PaymentStatus.Paid;
+        PaidAt ??= DateTime.UtcNow;
     }
 
     private void EnsureCanBeChanged()
@@ -110,5 +260,8 @@ public sealed class Order : RestaurantScopedEntity
 
         if (Status == OrderStatus.Canceled)
             throw new InvalidOperationException("Pedidos cancelados não podem ser alterados.");
+
+        if (ClosedAt is not null)
+            throw new InvalidOperationException("Pedidos com conta fechada não podem receber novos itens.");
     }
 }

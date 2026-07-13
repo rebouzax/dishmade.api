@@ -29,6 +29,7 @@ public sealed class DishmadeDbContext : DbContext
     public DbSet<DishOption> DishOptions => Set<DishOption>();
     public DbSet<OrderItemOption> OrderItemOptions => Set<OrderItemOption>();
     public DbSet<ServiceRequest> ServiceRequests => Set<ServiceRequest>();
+    public DbSet<OrderPayment> OrderPayments => Set<OrderPayment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -84,5 +85,10 @@ public sealed class DishmadeDbContext : DbContext
             .HasQueryFilter(request =>
                _currentUserService.RestaurantId.HasValue &&
                request.RestaurantId == _currentUserService.RestaurantId.Value);
+
+        modelBuilder.Entity<OrderPayment>()
+            .HasQueryFilter(payment =>
+                _currentUserService.RestaurantId.HasValue &&
+                payment.RestaurantId == _currentUserService.RestaurantId.Value);
     }
 }
