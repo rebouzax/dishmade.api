@@ -1,8 +1,8 @@
-﻿using dishmade.application.Features.ServiceRequests.Commands.CancelServiceRequest;
-using dishmade.application.Features.ServiceRequests.Commands.ResolveServiceRequest;
-using dishmade.application.Features.ServiceRequests.Commands.StartServiceRequest;
-using dishmade.application.Features.ServiceRequests.Queries.GetServiceRequestById;
-using dishmade.application.Features.ServiceRequests.Queries.GetServiceRequests;
+﻿using dishmade.application.Features.Public.ServiceRequests.Commands.CancelServiceRequest;
+using dishmade.application.Features.Public.ServiceRequests.Commands.ResolveServiceRequest;
+using dishmade.application.Features.Public.ServiceRequests.Commands.StartServiceRequest;
+using dishmade.application.Features.Public.ServiceRequests.Queries.GetServiceRequestById;
+using dishmade.application.Features.Public.ServiceRequests.Queries.GetServiceRequests;
 using dishmade.domain.Constants;
 using dishmade.domain.Enums;
 using MediatR;

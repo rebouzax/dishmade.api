@@ -32,6 +32,16 @@ public sealed class RestaurantMapping : IEntityTypeConfiguration<Restaurant>
         builder.Property(restaurant => restaurant.IsActive)
             .IsRequired();
 
+        builder.Property(restaurant => restaurant.DefaultServiceFeePercentage)
+            .IsRequired()
+            .HasPrecision(5, 2);
+
+        builder.Property(restaurant => restaurant.AcceptsQrCodeOrders)
+            .IsRequired();
+
+        builder.Property(restaurant => restaurant.AcceptsWaiterCall)
+            .IsRequired();
+
         builder.Property(restaurant => restaurant.CreatedAt)
             .IsRequired();
 

@@ -1,8 +1,9 @@
 ﻿using dishmade.application.Abstractions.Data;
 using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Features.Public.ServiceRequests;
 using MediatR;
 
-namespace dishmade.application.Features.ServiceRequests.Commands.StartServiceRequest;
+namespace dishmade.application.Features.Public.ServiceRequests.Commands.StartServiceRequest;
 
 public sealed class StartServiceRequestCommandHandler
     : IRequestHandler<StartServiceRequestCommand, ServiceRequestResponse>

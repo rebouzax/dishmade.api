@@ -1,6 +1,5 @@
 ﻿using dishmade.application.Abstractions.Data;
 using dishmade.application.Abstractions.Repositories;
-using dishmade.application.Features.ServiceRequests;
 using dishmade.domain.Entities;
 using MediatR;
 
@@ -36,6 +35,9 @@ public sealed class CreatePublicServiceRequestCommandHandler
 
         if (restaurant is null || !restaurant.IsActive)
             throw new KeyNotFoundException("Restaurante não encontrado.");
+
+        if (!restaurant.AcceptsWaiterCall)
+            throw new InvalidOperationException("Este restaurante não aceita chamadas de garçom pelo QR Code no momento.");
 
         var table = await _tableRepository.GetPublicByRestaurantIdAndNumberAsync(
             restaurant.Id,

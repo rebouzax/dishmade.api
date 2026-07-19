@@ -107,6 +107,9 @@ public sealed class GetPublicMenuQueryHandler : IRequestHandler<GetPublicMenuQue
             restaurant.Slug,
             menuUrl,
             qrCodeUrl,
+            restaurant.DefaultServiceFeePercentage,
+            restaurant.AcceptsQrCodeOrders,
+            restaurant.AcceptsWaiterCall,
             responseCategories);
     }
 }

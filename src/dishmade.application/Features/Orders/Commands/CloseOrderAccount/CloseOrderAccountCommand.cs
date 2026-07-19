@@ -6,5 +6,6 @@ namespace dishmade.application.Features.Orders.Commands.CloseOrderAccount;
 public sealed record CloseOrderAccountCommand(
     Guid OrderId,
     decimal DiscountAmount,
-    decimal ServiceFeeAmount
+    decimal? ServiceFeeAmount,
+    bool UseDefaultServiceFee
 ) : IRequest<OrderReceiptResponse>;

@@ -16,6 +16,7 @@ public sealed class CloseOrderAccountCommandValidator : AbstractValidator<CloseO
 
         RuleFor(command => command.ServiceFeeAmount)
             .GreaterThanOrEqualTo(0)
+            .When(command => command.ServiceFeeAmount.HasValue)
             .WithMessage("A taxa de serviço não pode ser negativa.");
     }
 }

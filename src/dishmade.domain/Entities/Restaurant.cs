@@ -9,6 +9,10 @@ public sealed class Restaurant : BaseEntity
     public string? Document { get; private set; }
     public bool IsActive { get; private set; } = true;
 
+    public decimal DefaultServiceFeePercentage { get; private set; }
+    public bool AcceptsQrCodeOrders { get; private set; } = true;
+    public bool AcceptsWaiterCall { get; private set; } = true;
+
     public ICollection<AppUser> Users { get; private set; } = [];
 
     private Restaurant()
@@ -26,6 +30,10 @@ public sealed class Restaurant : BaseEntity
         Name = name.Trim();
         Document = document?.Trim();
         Slug = slug.Trim().ToLowerInvariant();
+
+        DefaultServiceFeePercentage = 10;
+        AcceptsQrCodeOrders = true;
+        AcceptsWaiterCall = true;
     }
 
     public void Update(string name, string? document, string slug)
@@ -39,6 +47,24 @@ public sealed class Restaurant : BaseEntity
         Name = name.Trim();
         Document = document?.Trim();
         Slug = slug.Trim().ToLowerInvariant();
+
+        SetUpdatedAt();
+    }
+
+    public void UpdateOperationalSettings(
+        decimal defaultServiceFeePercentage,
+        bool acceptsQrCodeOrders,
+        bool acceptsWaiterCall)
+    {
+        if (defaultServiceFeePercentage < 0)
+            throw new ArgumentException("A taxa de serviço padrão não pode ser negativa.", nameof(defaultServiceFeePercentage));
+
+        if (defaultServiceFeePercentage > 100)
+            throw new ArgumentException("A taxa de serviço padrão não pode ser maior que 100%.", nameof(defaultServiceFeePercentage));
+
+        DefaultServiceFeePercentage = defaultServiceFeePercentage;
+        AcceptsQrCodeOrders = acceptsQrCodeOrders;
+        AcceptsWaiterCall = acceptsWaiterCall;
 
         SetUpdatedAt();
     }

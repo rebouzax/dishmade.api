@@ -1,8 +1,9 @@
 ﻿using dishmade.application.Common.Pagination;
+using dishmade.application.Features.Public.ServiceRequests;
 using dishmade.domain.Enums;
 using MediatR;
 
-namespace dishmade.application.Features.ServiceRequests.Queries.GetServiceRequests;
+namespace dishmade.application.Features.Public.ServiceRequests.Queries.GetServiceRequests;
 
 public sealed record GetServiceRequestsQuery(
     ServiceRequestStatus? Status,

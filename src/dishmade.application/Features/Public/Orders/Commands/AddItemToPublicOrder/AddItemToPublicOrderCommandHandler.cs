@@ -50,6 +50,9 @@ public sealed class AddItemToPublicOrderCommandHandler
         if (restaurant is null || !restaurant.IsActive)
             throw new KeyNotFoundException("Restaurante não encontrado.");
 
+        if (!restaurant.AcceptsQrCodeOrders)
+            throw new InvalidOperationException("Este restaurante não aceita pedidos pelo QR Code no momento.");
+
         var dish = await _dishRepository.GetPublicAvailableByIdAsync(
             request.DishId,
             order.RestaurantId,

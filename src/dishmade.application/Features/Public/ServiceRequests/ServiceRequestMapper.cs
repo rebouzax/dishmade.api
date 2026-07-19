@@ -1,6 +1,6 @@
 ﻿using dishmade.domain.Entities;
 
-namespace dishmade.application.Features.ServiceRequests;
+namespace dishmade.application.Features.Public.ServiceRequests;
 
 public static class ServiceRequestMapper
 {

@@ -6,6 +6,9 @@ public sealed record PublicMenuResponse(
     string Slug,
     string MenuUrl,
     string QrCodeUrl,
+    decimal DefaultServiceFeePercentage,
+    bool AcceptsQrCodeOrders,
+    bool AcceptsWaiterCall,
     IReadOnlyList<PublicCategoryResponse> Categories
 );
 

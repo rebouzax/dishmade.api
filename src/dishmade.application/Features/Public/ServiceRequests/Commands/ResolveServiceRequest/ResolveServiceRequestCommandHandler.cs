@@ -1,16 +1,17 @@
 ﻿using dishmade.application.Abstractions.Data;
 using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Features.Public.ServiceRequests;
 using MediatR;
 
-namespace dishmade.application.Features.ServiceRequests.Commands.CancelServiceRequest;
+namespace dishmade.application.Features.Public.ServiceRequests.Commands.ResolveServiceRequest;
 
-public sealed class CancelServiceRequestCommandHandler
-    : IRequestHandler<CancelServiceRequestCommand, ServiceRequestResponse>
+public sealed class ResolveServiceRequestCommandHandler
+    : IRequestHandler<ResolveServiceRequestCommand, ServiceRequestResponse>
 {
     private readonly IServiceRequestRepository _serviceRequestRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CancelServiceRequestCommandHandler(
+    public ResolveServiceRequestCommandHandler(
         IServiceRequestRepository serviceRequestRepository,
         IUnitOfWork unitOfWork)
     {
@@ -19,7 +20,7 @@ public sealed class CancelServiceRequestCommandHandler
     }
 
     public async Task<ServiceRequestResponse> Handle(
-        CancelServiceRequestCommand request,
+        ResolveServiceRequestCommand request,
         CancellationToken cancellationToken)
     {
         var serviceRequest = await _serviceRequestRepository.GetByIdAsync(
@@ -29,7 +30,7 @@ public sealed class CancelServiceRequestCommandHandler
         if (serviceRequest is null)
             throw new KeyNotFoundException("Solicitação não encontrada.");
 
-        serviceRequest.Cancel();
+        serviceRequest.Resolve();
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

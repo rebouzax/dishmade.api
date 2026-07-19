@@ -119,7 +119,8 @@ public sealed class OrdersController : ControllerBase
             new CloseOrderAccountCommand(
                 id,
                 request.DiscountAmount,
-                request.ServiceFeeAmount),
+                request.ServiceFeeAmount,
+                request.UseDefaultServiceFee),
             cancellationToken);
 
         return Ok(response);
@@ -168,7 +169,8 @@ public sealed record ChangeOrderStatusRequest(OrderStatus Status);
 
 public sealed record CloseOrderAccountRequest(
     decimal DiscountAmount,
-    decimal ServiceFeeAmount
+    decimal? ServiceFeeAmount,
+    bool UseDefaultServiceFee
 );
 
 public sealed record RegisterOrderPaymentRequest(

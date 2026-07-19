@@ -1,7 +1,8 @@
 ﻿using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Features.Public.ServiceRequests;
 using MediatR;
 
-namespace dishmade.application.Features.ServiceRequests.Queries.GetServiceRequestById;
+namespace dishmade.application.Features.Public.ServiceRequests.Queries.GetServiceRequestById;
 
 public sealed class GetServiceRequestByIdQueryHandler
     : IRequestHandler<GetServiceRequestByIdQuery, ServiceRequestResponse>

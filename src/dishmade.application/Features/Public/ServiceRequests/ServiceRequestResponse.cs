@@ -1,6 +1,6 @@
 ﻿using dishmade.domain.Enums;
 
-namespace dishmade.application.Features.ServiceRequests;
+namespace dishmade.application.Features.Public.ServiceRequests;
 
 public sealed record ServiceRequestResponse(
     Guid Id,

@@ -38,6 +38,9 @@ public sealed class OpenOrCreatePublicOrderCommandHandler
         if (restaurant is null || !restaurant.IsActive)
             throw new KeyNotFoundException("Restaurante não encontrado.");
 
+        if (!restaurant.AcceptsQrCodeOrders)
+            throw new InvalidOperationException("Este restaurante não aceita pedidos pelo QR Code no momento.");
+
         var table = await _tableRepository.GetPublicByRestaurantIdAndNumberAsync(
             restaurant.Id,
             request.TableNumber,
