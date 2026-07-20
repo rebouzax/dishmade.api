@@ -1,7 +1,9 @@
 ﻿using dishmade.application.Abstractions.Data;
+using dishmade.application.Abstractions.Realtime;
 using dishmade.application.Abstractions.Repositories;
-using MediatR;
+using dishmade.application.Features.Kitchen;
 using dishmade.application.Features.Orders.Services;
+using MediatR;
 
 namespace dishmade.application.Features.Public.Orders.Commands.AddItemToPublicOrder;
 
@@ -14,6 +16,7 @@ public sealed class AddItemToPublicOrderCommandHandler
     private readonly IDishOptionGroupRepository _dishOptionGroupRepository;
     private readonly IDishOptionRepository _dishOptionRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IKitchenRealtimeNotifier _kitchenRealtimeNotifier;
 
     public AddItemToPublicOrderCommandHandler(
         IOrderRepository orderRepository,
@@ -21,7 +24,8 @@ public sealed class AddItemToPublicOrderCommandHandler
         IDishRepository dishRepository,
         IDishOptionGroupRepository dishOptionGroupRepository,
         IDishOptionRepository dishOptionRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IKitchenRealtimeNotifier kitchenRealtimeNotifier)
     {
         _orderRepository = orderRepository;
         _restaurantRepository = restaurantRepository;
@@ -29,6 +33,7 @@ public sealed class AddItemToPublicOrderCommandHandler
         _dishOptionGroupRepository = dishOptionGroupRepository;
         _dishOptionRepository = dishOptionRepository;
         _unitOfWork = unitOfWork;
+        _kitchenRealtimeNotifier = kitchenRealtimeNotifier;
     }
 
     public async Task<PublicOrderResponse> Handle(
@@ -105,6 +110,11 @@ public sealed class AddItemToPublicOrderCommandHandler
 
         if (updatedOrder is null)
             throw new KeyNotFoundException("Pedido não encontrado.");
+
+        await _kitchenRealtimeNotifier.NotifyOrderItemAddedAsync(
+            restaurant.Id,
+            KitchenOrderRealtimeMapper.ToResponse(updatedOrder),
+            cancellationToken);
 
         return PublicOrderMapper.ToResponse(updatedOrder, restaurant);
     }

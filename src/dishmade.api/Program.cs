@@ -1,7 +1,10 @@
+using dishmade.api.Hubs;
 using dishmade.api.Middlewares;
+using dishmade.api.Realtime;
 using dishmade.api.Services;
 using dishmade.application;
 using dishmade.application.Abstractions.Auth;
+using dishmade.application.Abstractions.Realtime;
 using dishmade.infra;
 using dishmade.infra.Data.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,14 +22,19 @@ builder.Services.AddCors(options =>
     options.AddPolicy(CorsPolicy, policy =>
     {
         policy
-            .AllowAnyOrigin()
+            .WithOrigins(
+                "http://localhost:3000",
+                "http://localhost:62279")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddSignalR();
+builder.Services.AddScoped<IKitchenRealtimeNotifier, SignalRKitchenRealtimeNotifier>();
 
 builder.Services
     .AddControllers()
@@ -65,6 +73,23 @@ builder.Services
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/hubs/kitchen"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -73,6 +98,9 @@ builder.Services.AddApplication();
 builder.Services.AddInfra(builder.Configuration);
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSignalR();
+
+builder.Services.AddScoped<IKitchenRealtimeNotifier, SignalRKitchenRealtimeNotifier>();
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -111,5 +139,6 @@ app.UseAuthorization();
 await AdminUserSeeder.SeedAdminUserAsync(app.Services);
 
 app.MapControllers();
+app.MapHub<KitchenHub>("/hubs/kitchen");
 
 app.Run();

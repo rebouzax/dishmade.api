@@ -52,4 +52,7 @@ public interface IOrderRepository
         CancellationToken cancellationToken = default);
 
     Task AddPaymentAsync(OrderPayment payment, CancellationToken cancellationToken = default);
+    Task<Order?> GetPublicDetailsByIdAsync(
+    Guid id,
+    CancellationToken cancellationToken = default);
 }

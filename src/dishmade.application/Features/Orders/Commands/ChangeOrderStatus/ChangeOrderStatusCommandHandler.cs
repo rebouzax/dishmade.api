@@ -1,5 +1,7 @@
 ﻿using dishmade.application.Abstractions.Data;
+using dishmade.application.Abstractions.Realtime;
 using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Features.Kitchen;
 using dishmade.domain.Enums;
 using MediatR;
 
@@ -9,13 +11,16 @@ public sealed class ChangeOrderStatusCommandHandler : IRequestHandler<ChangeOrde
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IKitchenRealtimeNotifier _kitchenRealtimeNotifier;
 
     public ChangeOrderStatusCommandHandler(
         IOrderRepository orderRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IKitchenRealtimeNotifier kitchenRealtimeNotifier)
     {
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
+        _kitchenRealtimeNotifier = kitchenRealtimeNotifier;
     }
 
     public async Task Handle(
@@ -47,5 +52,37 @@ public sealed class ChangeOrderStatusCommandHandler : IRequestHandler<ChangeOrde
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var updatedOrder = await _orderRepository.GetByIdAsync(order.Id, cancellationToken);
+
+        if (updatedOrder is null)
+            throw new KeyNotFoundException("Pedido não encontrado.");
+
+        var payload = KitchenOrderRealtimeMapper.ToResponse(updatedOrder);
+
+        if (updatedOrder.Status == OrderStatus.Canceled)
+        {
+            await _kitchenRealtimeNotifier.NotifyOrderCanceledAsync(
+                updatedOrder.RestaurantId,
+                payload,
+                cancellationToken);
+
+            return;
+        }
+
+        if (updatedOrder.Status == OrderStatus.Delivered)
+        {
+            await _kitchenRealtimeNotifier.NotifyOrderDeliveredAsync(
+                updatedOrder.RestaurantId,
+                payload,
+                cancellationToken);
+
+            return;
+        }
+
+        await _kitchenRealtimeNotifier.NotifyOrderStatusChangedAsync(
+            updatedOrder.RestaurantId,
+            payload,
+            cancellationToken);
     }
 }

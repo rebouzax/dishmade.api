@@ -1,6 +1,8 @@
 ﻿using dishmade.application.Abstractions.Auth;
 using dishmade.application.Abstractions.Data;
+using dishmade.application.Abstractions.Realtime;
 using dishmade.application.Abstractions.Repositories;
+using dishmade.application.Features.Kitchen;
 using dishmade.domain.Entities;
 using MediatR;
 
@@ -12,17 +14,20 @@ public sealed class CreateOrderCommandHandler : IRequestHandler<CreateOrderComma
     private readonly IRestaurantTableRepository _tableRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IKitchenRealtimeNotifier _kitchenRealtimeNotifier;
 
     public CreateOrderCommandHandler(
         IOrderRepository orderRepository,
         IRestaurantTableRepository tableRepository,
         IUnitOfWork unitOfWork,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IKitchenRealtimeNotifier kitchenRealtimeNotifier)
     {
         _orderRepository = orderRepository;
         _tableRepository = tableRepository;
         _unitOfWork = unitOfWork;
         _currentUserService = currentUserService;
+        _kitchenRealtimeNotifier = kitchenRealtimeNotifier;
     }
 
     public async Task<Guid> Handle(
@@ -47,6 +52,18 @@ public sealed class CreateOrderCommandHandler : IRequestHandler<CreateOrderComma
 
         await _orderRepository.AddAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var createdOrder = await _orderRepository.GetByIdAsync(
+            order.Id,
+            cancellationToken);
+
+        if (createdOrder is null)
+            throw new KeyNotFoundException("Pedido criado não encontrado.");
+
+        await _kitchenRealtimeNotifier.NotifyOrderCreatedAsync(
+            createdOrder.RestaurantId,
+            KitchenOrderRealtimeMapper.ToResponse(createdOrder),
+            cancellationToken);
 
         return order.Id;
     }

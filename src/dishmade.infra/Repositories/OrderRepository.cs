@@ -238,6 +238,21 @@ public sealed class OrderRepository : IOrderRepository
                 cancellationToken);
     }
 
+    public async Task<Order?> GetPublicDetailsByIdAsync(
+    Guid id,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.Orders
+            .IgnoreQueryFilters()
+            .Include(order => order.Table)
+            .Include(order => order.Items)
+                .ThenInclude(item => item.Dish)
+            .Include(order => order.Items)
+                .ThenInclude(item => item.Options)
+            .Include(order => order.Payments)
+            .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
+    }
+
     public async Task AddPaymentAsync(
     OrderPayment payment,
     CancellationToken cancellationToken = default)

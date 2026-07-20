@@ -1,7 +1,9 @@
 ﻿using dishmade.application.Abstractions.Data;
+using dishmade.application.Abstractions.Realtime;
 using dishmade.application.Abstractions.Repositories;
 using dishmade.application.Common.Exceptions;
 using dishmade.application.Common.Security;
+using dishmade.application.Features.Kitchen;
 using dishmade.domain.Entities;
 using MediatR;
 
@@ -14,17 +16,20 @@ public sealed class OpenOrCreatePublicOrderCommandHandler
     private readonly IRestaurantTableRepository _tableRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IKitchenRealtimeNotifier _kitchenRealtimeNotifier;
 
     public OpenOrCreatePublicOrderCommandHandler(
         IRestaurantRepository restaurantRepository,
         IRestaurantTableRepository tableRepository,
         IOrderRepository orderRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IKitchenRealtimeNotifier kitchenRealtimeNotifier    )
     {
         _restaurantRepository = restaurantRepository;
         _tableRepository = tableRepository;
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
+        _kitchenRealtimeNotifier = kitchenRealtimeNotifier;
     }
 
     public async Task<PublicOrderSessionResponse> Handle(
@@ -108,6 +113,11 @@ public sealed class OpenOrCreatePublicOrderCommandHandler
 
         if (createdOrder is null)
             throw new KeyNotFoundException("Pedido criado não encontrado.");
+
+        await _kitchenRealtimeNotifier.NotifyOrderCreatedAsync(
+            restaurant.Id,
+            KitchenOrderRealtimeMapper.ToResponse(createdOrder),
+            cancellationToken);
 
         return new PublicOrderSessionResponse(
             WasCreated: true,

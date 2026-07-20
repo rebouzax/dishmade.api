@@ -1,6 +1,8 @@
 ﻿using dishmade.application.Abstractions.Data;
+using dishmade.application.Abstractions.Realtime;
 using dishmade.application.Abstractions.Repositories;
 using dishmade.application.Common.Security;
+using dishmade.application.Features.Kitchen;
 using dishmade.domain.Entities;
 using MediatR;
 
@@ -13,17 +15,21 @@ public sealed class CreatePublicOrderCommandHandler
     private readonly IRestaurantTableRepository _tableRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IKitchenRealtimeNotifier _kitchenRealtimeNotifier;
 
     public CreatePublicOrderCommandHandler(
         IRestaurantRepository restaurantRepository,
         IRestaurantTableRepository tableRepository,
         IOrderRepository orderRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IKitchenRealtimeNotifier kitchenRealtimeNotifier)
     {
         _restaurantRepository = restaurantRepository;
         _tableRepository = tableRepository;
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
+        _kitchenRealtimeNotifier = kitchenRealtimeNotifier;
+
     }
 
     public async Task<PublicOrderResponse> Handle(
@@ -60,6 +66,18 @@ public sealed class CreatePublicOrderCommandHandler
         await _orderRepository.AddAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return PublicOrderMapper.ToResponse(order, restaurant);
+        var createdOrder = await _orderRepository.GetPublicDetailsByIdAsync(order.Id, cancellationToken);
+
+        if (createdOrder is null)
+            throw new KeyNotFoundException("Pedido criado não encontrado.");
+
+        var kitchenPayload = KitchenOrderRealtimeMapper.ToResponse(createdOrder);
+
+        await _kitchenRealtimeNotifier.NotifyOrderCreatedAsync(
+            restaurant.Id,
+            kitchenPayload,
+            cancellationToken);
+
+        return PublicOrderMapper.ToResponse(createdOrder, restaurant);
     }
 }
