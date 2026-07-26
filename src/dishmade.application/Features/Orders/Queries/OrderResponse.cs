@@ -22,3 +22,9 @@ public sealed record OrderResponse(
     DateTime? UpdatedAt,
     DateTime? DeliveredAt
 );
+
+public sealed record OrderItemOptionResponse(
+    Guid DishOptionId,
+    string Name,
+    decimal AdditionalPrice
+);

@@ -32,6 +32,7 @@ public sealed record OrderReceiptItemResponse(
     decimal OptionsTotal,
     decimal Total,
     string? Notes,
+    OrderItemStatus Status,
     IReadOnlyList<OrderReceiptItemOptionResponse> Options
 );
 

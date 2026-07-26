@@ -114,4 +114,16 @@ public sealed class SignalRKitchenRealtimeNotifier : IKitchenRealtimeNotifier
                 payload,
                 cancellationToken);
     }
+
+    public async Task NotifyOrderItemStatusChangedAsync(
+    Guid restaurantId,
+    KitchenOrderRealtimeResponse order,
+    CancellationToken cancellationToken = default)
+    {
+        await SendAsync(
+            restaurantId,
+            KitchenRealtimeEvents.OrderItemStatusChanged,
+            order,
+            cancellationToken);
+    }
 }

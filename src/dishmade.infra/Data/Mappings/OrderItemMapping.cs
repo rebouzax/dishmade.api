@@ -28,6 +28,10 @@ public sealed class OrderItemMapping : IEntityTypeConfiguration<OrderItem>
             .IsRequired()
             .HasPrecision(10, 2);
 
+        builder.Property(item => item.Status)
+            .IsRequired()
+            .HasConversion<int>();
+
         builder.Property(item => item.Notes)
             .HasMaxLength(500);
 

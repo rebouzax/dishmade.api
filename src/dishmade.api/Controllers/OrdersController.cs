@@ -4,6 +4,7 @@ using dishmade.application.Features.Orders.Commands.ChangeOrderStatus;
 using dishmade.application.Features.Orders.Commands.CloseOrderAccount;
 using dishmade.application.Features.Orders.Commands.CreateOrder;
 using dishmade.application.Features.Orders.Commands.RegisterOrderPayment;
+using dishmade.application.Features.Orders.Commands.UpdateOrderItemStatus;
 using dishmade.application.Features.Orders.Queries.GetOrderById;
 using dishmade.application.Features.Orders.Queries.GetOrderReceipt;
 using dishmade.application.Features.Orders.Queries.GetOrders;
@@ -155,6 +156,23 @@ public sealed class OrdersController : ControllerBase
         return Ok(response);
     }
 
+    [HttpPatch("{orderId:guid}/items/{itemId:guid}/status")]
+    public async Task<IActionResult> UpdateItemStatus(
+    Guid orderId,
+    Guid itemId,
+    [FromBody] UpdateOrderItemStatusRequest request,
+    CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new UpdateOrderItemStatusCommand(
+                orderId,
+                itemId,
+                request.Status),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
 }
 
 public sealed record CreateOrderRequest(Guid TableId);
@@ -164,7 +182,9 @@ public sealed record AddItemToOrderRequest(
     int Quantity,
     string? Notes
 );
-
+public sealed record UpdateOrderItemStatusRequest(
+    OrderItemStatus Status
+);
 public sealed record ChangeOrderStatusRequest(OrderStatus Status);
 
 public sealed record CloseOrderAccountRequest(

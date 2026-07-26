@@ -26,6 +26,7 @@ public static class KitchenOrderRealtimeMapper
                     item.GetOptionsTotal(),
                     item.GetTotal(),
                     item.Notes,
+                    item.Status,
                     item.Options
                         .Select(option => new KitchenOrderItemOptionRealtimeResponse(
                             option.DishOptionId,

@@ -15,6 +15,11 @@ public interface IKitchenRealtimeNotifier
         KitchenOrderRealtimeResponse order,
         CancellationToken cancellationToken = default);
 
+    Task NotifyOrderItemStatusChangedAsync(
+        Guid restaurantId,
+        KitchenOrderRealtimeResponse order,
+        CancellationToken cancellationToken = default);
+
     Task NotifyOrderStatusChangedAsync(
         Guid restaurantId,
         KitchenOrderRealtimeResponse order,

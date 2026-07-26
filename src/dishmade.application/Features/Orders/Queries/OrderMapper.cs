@@ -10,11 +10,19 @@ public static class OrderMapper
             .Select(item => new OrderItemResponse(
                 item.Id,
                 item.DishId,
-                item.Dish.Name,
+                item.Dish?.Name ?? "Prato não carregado",
                 item.Quantity,
                 item.UnitPrice,
-                item.GetTotal(), 
-                item.Notes))
+                item.GetOptionsTotal(),
+                item.GetTotal(),
+                item.Notes,
+                item.Status,
+                item.Options
+                    .Select(option => new OrderItemOptionResponse(
+                        option.DishOptionId,
+                        option.OptionName,
+                        option.AdditionalPrice))
+                    .ToList()))
             .ToList();
 
         return new OrderResponse(

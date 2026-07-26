@@ -153,6 +153,12 @@ public sealed class Order : RestaurantScopedEntity
 
         Status = OrderStatus.Delivered;
         DeliveredAt = DateTime.UtcNow;
+
+        foreach (var item in Items.Where(item => item.Status != OrderItemStatus.Canceled))
+        {
+            item.MarkAsDelivered();
+        }
+
         SetUpdatedAt();
     }
 
@@ -263,5 +269,86 @@ public sealed class Order : RestaurantScopedEntity
 
         if (ClosedAt is not null)
             throw new InvalidOperationException("Pedidos com conta fechada não podem receber novos itens.");
+    }
+
+    private void SyncOrderStatusFromItems()
+    {
+        if (Status == OrderStatus.Delivered || Status == OrderStatus.Canceled)
+            return;
+
+        if (!Items.Any())
+        {
+            Status = OrderStatus.Created;
+            return;
+        }
+
+        var activeItems = Items
+            .Where(item => item.Status != OrderItemStatus.Canceled)
+            .ToList();
+
+        if (activeItems.Count == 0)
+        {
+            Status = OrderStatus.Canceled;
+            return;
+        }
+
+        if (activeItems.All(item =>
+                item.Status == OrderItemStatus.Ready ||
+                item.Status == OrderItemStatus.Delivered))
+        {
+            Status = OrderStatus.Ready;
+            return;
+        }
+
+        if (activeItems.Any(item =>
+                item.Status == OrderItemStatus.InPreparation ||
+                item.Status == OrderItemStatus.Ready ||
+                item.Status == OrderItemStatus.Delivered))
+        {
+            Status = OrderStatus.InPreparation;
+            return;
+        }
+
+        Status = OrderStatus.Created;
+    }
+    public void UpdateItemStatus(
+    Guid orderItemId,
+    OrderItemStatus status)
+    {
+        EnsureCanBeChanged();
+
+        var item = Items.FirstOrDefault(item => item.Id == orderItemId);
+
+        if (item is null)
+            throw new KeyNotFoundException("Item do pedido não encontrado.");
+
+        switch (status)
+        {
+            case OrderItemStatus.Created:
+                throw new InvalidOperationException("Não é possível voltar o item para criado.");
+
+            case OrderItemStatus.InPreparation:
+                item.StartPreparation();
+                break;
+
+            case OrderItemStatus.Ready:
+                item.MarkAsReady();
+                break;
+
+            case OrderItemStatus.Delivered:
+                item.MarkAsDelivered();
+                break;
+
+            case OrderItemStatus.Canceled:
+                item.Cancel();
+                break;
+
+            default:
+                throw new InvalidOperationException("Status do item inválido.");
+        }
+
+        SyncOrderStatusFromItems();
+
+        SetUpdatedAt();
     }
 }

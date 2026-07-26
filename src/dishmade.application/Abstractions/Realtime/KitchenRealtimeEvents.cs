@@ -9,4 +9,5 @@ public static class KitchenRealtimeEvents
     public const string OrderDelivered = "KitchenOrderDelivered";
     public const string ServiceRequestCreated = "KitchenServiceRequestCreated";
     public const string ServiceRequestUpdated = "KitchenServiceRequestUpdated";
+    public const string OrderItemStatusChanged = "KitchenOrderItemStatusChanged";
 }

@@ -24,6 +24,7 @@ public sealed record PublicOrderItemResponse(
     decimal OptionsTotal,
     decimal Total,
     string? Notes,
+    OrderItemStatus Status,
     IReadOnlyList<PublicOrderItemOptionResponse> Options
 );
 

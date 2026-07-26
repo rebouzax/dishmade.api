@@ -17,6 +17,7 @@ public static class OrderReceiptMapper
                 item.GetOptionsTotal(),
                 item.GetTotal(),
                 item.Notes,
+                item.Status,
                 item.Options
                     .Select(option => new OrderReceiptItemOptionResponse(
                         option.DishOptionId,

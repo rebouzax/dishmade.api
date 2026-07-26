@@ -16,6 +16,7 @@ public static class PublicOrderMapper
                 item.GetOptionsTotal(),
                 item.GetTotal(),
                 item.Notes,
+                item.Status,
                 item.Options
                     .Select(option => new PublicOrderItemOptionResponse(
                         option.DishOptionId,

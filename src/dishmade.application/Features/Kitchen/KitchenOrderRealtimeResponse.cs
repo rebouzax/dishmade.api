@@ -24,6 +24,7 @@ public sealed record KitchenOrderItemRealtimeResponse(
     decimal OptionsTotal,
     decimal Total,
     string? Notes,
+    OrderItemStatus Status,
     IReadOnlyList<KitchenOrderItemOptionRealtimeResponse> Options
 );
 
